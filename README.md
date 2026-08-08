@@ -141,7 +141,7 @@ HLSL, D3D12, Win32, C++을 이용하여 구현 중인 실시간 3D 엔진입니�
 |-----------------------|---------------------------------------------|
 |창모드                 |창모드 or 테두리 없는 전체 창모드            |
 |VSync                  |Off or On                                    |
-|Tearing                |피처 지원, VSync 여부에 따라 자동 적용       |
+|Tearing                |피처 지원 여부와 VSync 여부에 따라 자동 적용 |
 |HDR(미구현)            |Off or On                                    |
 |레이 트레이싱(미구현)  |Off or On                                    |
 |메쉬 셰이더(미구현)    |Off or On                                    |
@@ -167,7 +167,7 @@ HLSL, D3D12, Win32, C++을 이용하여 구현 중인 실시간 3D 엔진입니�
 |IDE                |Microsoft Visual Studio Community 2026 (64 - bit) 버전 18.8.2  |
 |플랫폼 도구 집합   |v145 for Microsoft C++ Build Tools                             |
 |컴파일러 버전      |x86용 Microsoft (R) C/C++ 최적화 컴파일러 버전 19.51.36252     |
-|구성               |`Profile` (= `Release` 구성 + `USE_PIX` 전처리기 상수 정의)    |
+|구성               |`Profile` (= 기본 `Release` 구성 + `USE_PIX` 전처리기 상수 정의)    |
 
 <br>
 
@@ -191,23 +191,23 @@ PIX의 Sequential Timing Capture을 이용하여 캡처를 진행합니다.
 
 ### 4.3. 측정 결과
 [VSync Off]
-|구분|측정 구간|평균 시간|
-|---|-------------------------------------------------------------------------|------------:|
-|CPU|프레임 시간                                                              |450,894 ns   |
-|   |├─논-렌더 로직                                                           |283 ns       |
-|   |└─ 렌더 로직                                                             |450,397 ns   |
-|   |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ 커맨드 리스트 초기화  |114,628 ns   |
-|   |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ 자원 바인딩           |9,368 ns     |
-|   |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ 씬 그리기             |320 ns       |
-|   |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ GUI 그리기            |13,990 ns    |
-|   |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ 자원 언바인딩         |1,638 ns     |
-|   |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ 커맨드 리스트 제출    |73,924 ns    |
-|   |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─ 제시                  |235,626 ns   |
-|GPU|프레임 시간                                                              |39,156 ns    |
-|   |├─ 자원 바인딩                                                           |38,322 ns    |
-|   |├─ 씬 그리기                                                             |9 ns         |
-|   |├─ GUI 그리기                                                            |763 ns       |
-|   |└─ 자원 언바인딩                                                         |12 ns        |
+|구분|측정 구간|평균 소요 시간|P95 소요 시간|
+|---|-------------------------------------------------------------------------|------------:|------------:|
+|CPU|프레임 시간                                                              |450,894 ns   |             |
+|   |├─논-렌더 로직                                                           |283 ns       |             |
+|   |└─ 렌더 로직                                                             |450,397 ns   |             |
+|   |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ 커맨드 리스트 초기화  |114,628 ns   |             |
+|   |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ 자원 바인딩           |9,368 ns     |             |
+|   |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ 씬 그리기             |320 ns       |             |
+|   |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ GUI 그리기            |13,990 ns    |             |
+|   |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ 자원 언바인딩         |1,638 ns     |             |
+|   |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ 커맨드 리스트 제출    |73,924 ns    |             |
+|   |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─ 제시                  |235,626 ns   |             |
+|GPU|프레임 시간                                                              |39,156 ns    |             |
+|   |├─ 자원 바인딩                                                           |38,322 ns    |             |
+|   |├─ 씬 그리기                                                             |9 ns         |             |
+|   |├─ GUI 그리기                                                            |763 ns       |             |
+|   |└─ 자원 언바인딩                                                         |12 ns        |             |
 
 - 총 캡처 시간 : 9,839,76 ms
 
@@ -218,23 +218,23 @@ PIX의 Sequential Timing Capture을 이용하여 캡처를 진행합니다.
 <br>
 
 [VSync On]  
-|구분|측정 구간|평균 시간|
-|---|-------------------------------------------------------------------------|------------:|
-|CPU|프레임 시간                                                              |4,161,893 ns |
-|   |├─논-렌더 로직                                                           |702 ns       |
-|   |└─ 렌더 로직                                                             |4,160,713 ns |
-|   |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ 커맨드 리스트 초기화  |3,573,808 ns |
-|   |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ 자원 바인딩           |24,925 ns    |
-|   |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ 씬 그리기             |646 ns       |
-|   |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ GUI 그리기            |35,617 ns    |
-|   |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ 자원 언바인딩         |3,192 ns     |
-|   |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ 커맨드 리스트 제출    |153,068 ns   |
-|   |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─ 제시                  |368,147 ns   |
-|GPU|프레임 시간                                                              |192,746 ns   |
-|   |├─ 자원 바인딩                                                           |190,587 ns   |
-|   |├─ 씬 그리기                                                             |7 ns         |
-|   |├─ GUI 그리기                                                            |2,083 ns     |
-|   |└─ 자원 언바인딩                                                         |10 ns        |
+|구분|측정 구간|평균 소요 시간|P95 소요 시간|
+|---|-------------------------------------------------------------------------|------------:|------------:|
+|CPU|프레임 시간                                                              |4,161,893 ns |             |
+|   |├─논-렌더 로직                                                           |702 ns       |             |
+|   |└─ 렌더 로직                                                             |4,160,713 ns |             |
+|   |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ 커맨드 리스트 초기화  |3,573,808 ns |             |
+|   |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ 자원 바인딩           |24,925 ns    |             |
+|   |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ 씬 그리기             |646 ns       |             |
+|   |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ GUI 그리기            |35,617 ns    |             |
+|   |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ 자원 언바인딩         |3,192 ns     |             |
+|   |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ 커맨드 리스트 제출    |153,068 ns   |             |
+|   |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─ 제시                  |368,147 ns   |             |
+|GPU|프레임 시간                                                              |192,746 ns   |             |
+|   |├─ 자원 바인딩                                                           |190,587 ns   |             |
+|   |├─ 씬 그리기                                                             |7 ns         |             |
+|   |├─ GUI 그리기                                                            |2,083 ns     |             |
+|   |└─ 자원 언바인딩                                                         |10 ns        |             |
 
 - 총 캡처 시간 : 8,973,71 ms
 
@@ -559,8 +559,8 @@ LRESULT Podo::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 <br>
 
 - **다중 PSO 기능**
-  - 조형 PSO  : 변위 매핑(지면, 수면), 빌보딩(초목), 스킨 애니메이션, 파티클
-  - 조명 PSO  : 블랜딩, 정적 환경 매핑, 동적 환경 매핑, 그림자 매핑, SSAO, 복셀 광역 조명, 레이 트레이싱
+  - 조형 PSO  : 빌보딩(초목), 변위 매핑(지면, 수면), 스킨 애니메이션, 파티클
+  - 조명 PSO  : 블랜딩, 정적 환경 매핑, 동적 환경 매핑, 그림자 매핑, SSAO, 레이 트레이싱, 복셀 광역 조명
 
 <br>
 

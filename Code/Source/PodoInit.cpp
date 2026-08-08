@@ -84,12 +84,12 @@ bool Podo::InitOutput(IDXGIAdapter3* pAdapter)
 
 	HMONITOR targetMonitor = MonitorFromWindow(m_hWnd, MONITOR_DEFAULTTONEAREST);
 
-	HRESULT result = S_OK;
-	for (int i = 0; result != DXGI_ERROR_NOT_FOUND; i++)
+	HRESULT enumResult = S_OK;
+	for (int i = 0; enumResult != DXGI_ERROR_NOT_FOUND; i++)
 	{
-		result = pAdapter->EnumOutputs(i, tempOutput.ReleaseAndGetAddressOf());
+		enumResult = pAdapter->EnumOutputs(i, tempOutput.ReleaseAndGetAddressOf());
 
-		if (SUCCEEDED(result) == true)
+		if (SUCCEEDED(enumResult) == true)
 		{
 			DXGI_OUTPUT_DESC tempOutputDesc;
 			tempOutput->GetDesc(&tempOutputDesc);
@@ -98,11 +98,18 @@ bool Podo::InitOutput(IDXGIAdapter3* pAdapter)
 			{
 				m_dxgiOutput = tempOutput;
 
-				m_optionHDR.outputSupported = SUCCEEDED(m_dxgiOutput.As(&m_dxgiOutput6));
-
-				if (m_optionHDR.outputSupported == true)
+				HRESULT asResult = m_dxgiOutput.As(&m_dxgiOutput6);
+				if (SUCCEEDED(asResult) == true)
 				{
 					m_dxgiOutput6->GetDesc1(&m_dxgiOutputDesc);
+					if (m_dxgiOutputDesc.ColorSpace == DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P709)
+					{
+						m_optionHDR.outputSupported = false;
+					}
+					else
+					{
+						m_optionHDR.outputSupported = true;
+					}
 				}
 
 				return true;
