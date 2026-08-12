@@ -8,7 +8,7 @@
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-//NOTE :	WindowProc이 수행 중에는 해당 스레드의 메시지 큐에 쌓인 다른 메시지들을 처리하지 못하므로,
+//NOTE:		WindowProc이 수행 중에는 해당 스레드의 메시지 큐에 쌓인 다른 메시지들을 처리하지 못하므로,
 //			되도록 이 안에서는 짧은 로직만 수행하도록 하고, 긴 대기가 필요한 로직은 별도 스레드로 처리하자
 LRESULT Podo::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -96,7 +96,7 @@ LRESULT Podo::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 		case WM_SYSKEYDOWN:
 		{
-			//NOTE : ALT+ENTER을 이용한 전체 화면 모드 전환을 처리함
+			//NOTE: ALT+ENTER을 이용한 전체 화면 모드 전환을 처리함
 			if (wParam == VK_RETURN && (lParam & 0x40000000) == 0)
 			{
 				m_optionFullScreen.userEnabled = !m_optionFullScreen.userEnabled;
@@ -110,7 +110,7 @@ LRESULT Podo::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 		case WM_SYSCHAR:
 		{
-			//NOTE : ALT+ENTER을 이용한 전체 화면 모드 전환시 윈도우 알림음이 안 나도록 함
+			//NOTE: ALT+ENTER을 이용한 전체 화면 모드 전환시 윈도우 알림음이 안 나도록 함
 			if (wParam == '\r')
 			{
 				return 0;
@@ -205,7 +205,7 @@ LRESULT Podo::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			return 0;
 		}
 		
-		//NOTE : ALT+F4 혹은 우상단 창닫기 버튼을 이용한 종료를 처리함
+		//NOTE: ALT+F4 혹은 우상단 창닫기 버튼을 이용한 종료를 처리함
 		case WM_CLOSE:
 		{
 			OptionSave();

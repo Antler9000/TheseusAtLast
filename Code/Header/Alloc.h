@@ -3,7 +3,7 @@
 #include <d3d12.h>
 #include <windows.h>
 
-//NOTE : Dear ImGui의 Win32 + D3D12 예제에 사용된 할당자를 수정하여 사용함
+//NOTE: Dear ImGui의 Win32 + D3D12 예제에 사용된 할당자를 수정하여 사용함
 struct ImGuiDescriptorHeapAllocator
 {
     ID3D12DescriptorHeap*       pHeap = nullptr;

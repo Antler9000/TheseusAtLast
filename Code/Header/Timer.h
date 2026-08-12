@@ -14,7 +14,7 @@ public:
 
 	~Timer() = default;
 
-	//NOTE : 타이머 객체의 복사 또는 이동을 허용하지 않도록 함
+	//NOTE: 타이머 객체의 복사 또는 이동을 허용하지 않도록 함
 	Timer(const Timer& sourceTimer) = delete;
 	Timer(Timer&& sourceTimer) noexcept = delete;
 	Timer& operator = (const Timer& sourceTimer) = delete;

@@ -99,10 +99,10 @@ public:
 				}
 				else
 				{
-					PIXScopedEvent(PIX_COLOR_INDEX(1), L"CPU : 1. Frame Time");
+					PIXScopedEvent(PIX_COLOR_INDEX(1), L"CPU: 1. Frame Time");
 
 					{
-						PIXScopedEvent(PIX_COLOR_INDEX(2), L"CPU : 2. Non-Render Logic");
+						PIXScopedEvent(PIX_COLOR_INDEX(2), L"CPU: 2. Non-Render Logic");
 
 						UpdateTimers();
 						UpdateCaption();
@@ -110,7 +110,7 @@ public:
 					}
 
 					{
-						PIXScopedEvent(PIX_COLOR_INDEX(3), L"CPU : 3. Render Logic");
+						PIXScopedEvent(PIX_COLOR_INDEX(3), L"CPU: 3. Render Logic");
 
 						UpdateRender();
 					}
@@ -121,7 +121,7 @@ public:
 		return (int)msg.wParam;
 	}
 
-	//NOTE : 이 메소드는 BaseApp에 작석된 WindowProcedure 정적 메소드에서 호출함
+	//NOTE: 이 메서드는 BaseApp에 작석된 WindowProcedure 정적 메서드에서 호출함
 	LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 private:
@@ -188,7 +188,7 @@ private:
 
 public:
 
-	//NOTE : ImGui에 넘겨주는 콜백 함수 속에서 기능해야 하므로 static으로 둠
+	//NOTE: ImGui에 넘겨주는 콜백 함수 속에서 기능해야 하므로 static으로 둠
 	static inline		ImGuiDescriptorHeapAllocator	m_imGuiDescriptorHeapAllocator		= {};
 
 public:
@@ -211,15 +211,15 @@ private:
 	template <typename Interface>
 	using ComPtr = Microsoft::WRL::ComPtr<Interface>;
 
-	ComPtr<IDXGIFactory6>				m_dxgiFactory;													//NOTE : (기본) 성능순 어댑터 획득
-	ComPtr<IDXGIAdapter3>				m_dxgiAdapter;													//NOTE : (기본) 자원의 메모리 상주성 관리
+	ComPtr<IDXGIFactory6>				m_dxgiFactory;													//NOTE: (기본) 성능순 어댑터 획득
+	ComPtr<IDXGIAdapter3>				m_dxgiAdapter;													//NOTE: (기본) 자원의 메모리 상주성 관리
 	ComPtr<IDXGIOutput>					m_dxgiOutput;
-	ComPtr<IDXGIOutput6>				m_dxgiOutput6;													//NOTE : (옵션) HDR 모니터 정보 획득
-	DXGI_OUTPUT_DESC1					m_dxgiOutputDesc									= {};		//NOTE : (옵션) HDR 모니터 정보 획득
+	ComPtr<IDXGIOutput6>				m_dxgiOutput6;													//NOTE: (옵션) HDR 모니터 정보 획득
+	DXGI_OUTPUT_DESC1					m_dxgiOutputDesc									= {};		//NOTE: (옵션) HDR 모니터 정보 획득
 	
 	ComPtr<ID3D12Device>				m_device;
-	ComPtr<ID3D12Device2>				m_device2;														//NOTE : (옵션) 메시 셰이더
-	ComPtr<ID3D12Device5>				m_device5;														//NOTE : (옵션) 레이 트레이싱
+	ComPtr<ID3D12Device2>				m_device2;														//NOTE: (옵션) 메시 셰이더
+	ComPtr<ID3D12Device5>				m_device5;														//NOTE: (옵션) 레이 트레이싱
 	
 	ComPtr<ID3D12Fence>					m_fence;
 	UINT64								m_fenceCurrent										= 0;
@@ -228,10 +228,10 @@ private:
 	ComPtr<ID3D12CommandQueue>			m_commandQueue;
 	ComPtr<ID3D12CommandAllocator>		m_commandAllocator;
 	ComPtr<ID3D12GraphicsCommandList>	m_commandList;
-	ComPtr<ID3D12GraphicsCommandList4>	m_commandList4;													//NOTE : (옵션) 레이 트레이싱
-	ComPtr<ID3D12GraphicsCommandList6>	m_commandList6;													//NOTE : (옵션) 메시 셰이더 생성
+	ComPtr<ID3D12GraphicsCommandList4>	m_commandList4;													//NOTE: (옵션) 레이 트레이싱
+	ComPtr<ID3D12GraphicsCommandList6>	m_commandList6;													//NOTE: (옵션) 메시 셰이더 생성
 	
-	ComPtr<IDXGISwapChain3>				m_screenSwapChain;												//NOTE : (기본) 백버퍼 인덱스 추적
+	ComPtr<IDXGISwapChain3>				m_screenSwapChain;												//NOTE: (기본) 백버퍼 인덱스 추적
 	ComPtr<ID3D12Resource>				m_screenBackBuffers[m_screenBackBufferCount];
 	UINT								m_screenBackBufferIndex								= 0;
 	UINT								m_screenBackBufferWidth								= 0;

@@ -43,7 +43,7 @@ void Podo::UpdateRender()
 	}
 
 	{
-		PIXScopedEvent(PIX_COLOR_INDEX(4), L"CPU : 4. Reset Command List");
+		PIXScopedEvent(PIX_COLOR_INDEX(4), L"CPU: 4. Reset Command List");
 
 		FlushCommandQueue();
 		ThrowIfFailed(m_commandAllocator->Reset());
@@ -51,11 +51,11 @@ void Podo::UpdateRender()
 	}
 
 	{
-		PIXScopedEvent(m_commandList.Get(), PIX_COLOR_INDEX(11), L"GPU : 1. Frame Time");
+		PIXScopedEvent(m_commandList.Get(), PIX_COLOR_INDEX(11), L"GPU: 1. Frame Time");
 
 		{
-			PIXScopedEvent(PIX_COLOR_INDEX(5), L"CPU : 5. Bind Resources");
-			PIXScopedEvent(m_commandList.Get(), PIX_COLOR_INDEX(12), L"GPU : 2. Bind Resources");
+			PIXScopedEvent(PIX_COLOR_INDEX(5), L"CPU: 5. Bind Resources");
+			PIXScopedEvent(m_commandList.Get(), PIX_COLOR_INDEX(12), L"GPU: 2. Bind Resources");
 
 			ID3D12DescriptorHeap* descriptorHeaps[] = { m_descriptorHeapCBVSRVUAV.Get() };
 			m_commandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
@@ -88,20 +88,20 @@ void Podo::UpdateRender()
 		}
 
 		{
-			PIXScopedEvent(PIX_COLOR_INDEX(6), L"CPU : 6. Draw Scene");
-			PIXScopedEvent(m_commandList.Get(), PIX_COLOR_INDEX(13), L"GPU : 3. Draw Scene");
+			PIXScopedEvent(PIX_COLOR_INDEX(6), L"CPU: 6. Draw Scene");
+			PIXScopedEvent(m_commandList.Get(), PIX_COLOR_INDEX(13), L"GPU: 3. Draw Scene");
 		}
 
 		{
-			PIXScopedEvent(PIX_COLOR_INDEX(7), L"CPU : 7. Draw GUI");
-			PIXScopedEvent(m_commandList.Get(), PIX_COLOR_INDEX(14), L"GPU : 4. Draw GUI");
+			PIXScopedEvent(PIX_COLOR_INDEX(7), L"CPU: 7. Draw GUI");
+			PIXScopedEvent(m_commandList.Get(), PIX_COLOR_INDEX(14), L"GPU: 4. Draw GUI");
 
 			UpdateGUI();
 		}
 
 		{
-			PIXScopedEvent(PIX_COLOR_INDEX(8), L"CPU : 8. Unbind Resources");
-			PIXScopedEvent(m_commandList.Get(), PIX_COLOR_INDEX(15), L"GPU : 5. Unbind Resources");
+			PIXScopedEvent(PIX_COLOR_INDEX(8), L"CPU: 8. Unbind Resources");
+			PIXScopedEvent(m_commandList.Get(), PIX_COLOR_INDEX(15), L"GPU: 5. Unbind Resources");
 
 			CD3DX12_RESOURCE_BARRIER barrierRenderTargetToPresent = CD3DX12_RESOURCE_BARRIER::Transition(
 				m_screenBackBuffers[m_screenBackBufferIndex].Get(),
@@ -113,7 +113,7 @@ void Podo::UpdateRender()
 	}
 
 	{
-		PIXScopedEvent(PIX_COLOR_INDEX(9), L"CPU : 9. Submit Command List");
+		PIXScopedEvent(PIX_COLOR_INDEX(9), L"CPU: 9. Submit Command List");
 
 		ThrowIfFailed(m_commandList->Close());
 		ID3D12CommandList* commandLists[] = { m_commandList.Get() };
@@ -121,7 +121,7 @@ void Podo::UpdateRender()
 	}
 
 	{
-		PIXScopedEvent(PIX_COLOR_INDEX(10), L"CPU : 10. Present");
+		PIXScopedEvent(PIX_COLOR_INDEX(10), L"CPU: 10. Present");
 
 		if (m_optionVSync.IsActive() == true)
 		{
@@ -316,14 +316,14 @@ void Podo::UpdateCaption()
 
 	worldTimerCaption.Update();
 
-	//NOTE : SetWindowTextW를 너무 자주 호출하면 시스템 부하로 인해 윈도우 전체가 먹통이 되니 반복에 텀을 주자
+	//NOTE: SetWindowTextW를 너무 자주 호출하면 시스템 부하로 인해 윈도우 전체가 먹통이 되니 반복에 텀을 주자
 	if (worldTimerCaption.GetTimeMilli() > 100.0f)
 	{
 
 		int fps = (m_worldTimerFrame.GetTimeMilli() != 0) ? static_cast<int>(1000 / m_worldTimerFrame.GetTimeMilli()) : 0;
 
 		wstring caption = std::format(
-			L"{} (월드 경과 시간 : {:06.1F} s / 월드 프레임 시간 : {:0.4f} ms / FPS : {:3d} fps / 마우스 위치 : {:04d} p, {:04d} p / 스크롤 각도 : {:04d} unit)",
+			L"{} (월드 경과 시간: {:06.1F} s / 월드 프레임 시간: {:0.4f} ms / FPS: {:3d} fps / 마우스 위치: {:04d} p, {:04d} p / 스크롤 각도: {:04d} unit)",
 			m_pAppName,
 			m_worldTimerTotal.GetTimeMilli() / 1000,
 			m_worldTimerFrame.GetTimeMilli(),

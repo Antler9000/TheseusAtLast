@@ -35,7 +35,7 @@ void Podo::InitFactory()
 
 	ThrowIfFailed(CreateDXGIFactory2(factoryFlags, IID_PPV_ARGS(m_dxgiFactory.ReleaseAndGetAddressOf())));
 
-	//NOTE : 쿼리 출력 매개변수는 BOOL 타입이므로, bool 타입인 m_optionTearing.featureSupported를 인자로 사용하면 안 됨
+	//NOTE: 쿼리 출력 매개변수는 BOOL 타입이므로, bool 타입인 m_optionTearing.featureSupported를 인자로 사용하면 안 됨
 	BOOL tearingQuery = FALSE;
 	m_dxgiFactory->CheckFeatureSupport(
 		DXGI_FEATURE_PRESENT_ALLOW_TEARING, 
@@ -535,7 +535,7 @@ void Podo::InitDescriptorHeapCBVSRVUAV()
 		)
 	);
 
-	//NOTE : ImGui가 SRV를 둘 곳을 고정적으로 남겨두고, 그 뒷부분부터 사용하기로 함
+	//NOTE: ImGui가 SRV를 둘 곳을 고정적으로 남겨두고, 그 뒷부분부터 사용하기로 함
 	m_descriptorHeapCBVSRVUAVIncrementSize = m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 	m_descriptorHeapCBVSRVUAVSCpuStartHandleForImGui = CD3DX12_CPU_DESCRIPTOR_HANDLE(m_descriptorHeapCBVSRVUAV->GetCPUDescriptorHandleForHeapStart());
 	m_descriptorHeapCBVSRVUAVSGpuStartHandleForImGui = CD3DX12_GPU_DESCRIPTOR_HANDLE(m_descriptorHeapCBVSRVUAV->GetGPUDescriptorHandleForHeapStart());
