@@ -1,3 +1,4 @@
+#define NOMINMAX
 #include "Podo.h"
 #include "Debug.h"
 #include <windows.h>
@@ -5,7 +6,7 @@
 
 void Podo::FlushCommandQueue()
 {
-	if (m_fenceEvent == nullptr || m_fence == nullptr || m_commandQueue == nullptr || m_commandList == nullptr)
+	if (m_fenceEvent == nullptr || m_fence == nullptr || m_commandQueue == nullptr)
 	{
 		return;
 	}
@@ -19,5 +20,15 @@ void Podo::FlushCommandQueue()
 	if (waitResult != WAIT_OBJECT_0)
 	{
 		throw std::runtime_error("wait fence failed");
+	}
+}
+
+void Podo::SaveWindow()
+{
+	if (m_optionFullScreen.IsActive() == false)
+	{
+		RECT windowRect = {};
+		ThrowIfFalse(GetWindowRect(m_hWnd, &windowRect));
+		m_optionWindowSave.SetWindowRect(windowRect);
 	}
 }

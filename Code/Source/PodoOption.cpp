@@ -1,4 +1,6 @@
+#define NOMINMAX
 #include "Podo.h"
+#include <windows.h>
 #include <algorithm>
 #include <string>
 #include <cstdio>
@@ -14,11 +16,15 @@ void Podo::OptionSave()
 	}
 
 	fout << "FullScreen"		<< " " << (m_optionFullScreen.userEnabled	? "Yes" : "No") << '\n';
-	fout << "VSync" << " " << (m_optionVSync.userEnabled ? "Yes" : "No") << '\n';
+	fout << "WindowSavePosX"	<< " " << ((int)m_optionWindowSave.posX)					<< '\n';
+	fout << "WindowSavePosY"	<< " " << ((int)m_optionWindowSave.posY)					<< '\n';
+	fout << "WindowSaveWidth"	<< " " << ((int)m_optionWindowSave.width)					<< '\n';
+	fout << "WindowSaveHeight"	<< " " << ((int)m_optionWindowSave.height)					<< '\n';
+	fout << "VSync"				<< " " << (m_optionVSync.userEnabled		? "Yes" : "No") << '\n';
 	fout << "HDR"				<< " " << (m_optionHDR.userEnabled			? "Yes" : "No") << '\n';
 	fout << "RayTracing"		<< " " << (m_optionRayTracing.userEnabled	? "Yes" : "No") << '\n';
 	fout << "MeshShader"		<< " " << (m_optionMeshShader.userEnabled	? "Yes" : "No") << '\n';
-	fout << "GUIMasterSize"		<< " " << m_optionGUI.masterSize		<< '\n';
+	fout << "GUIMasterSize"		<< " " << (m_optionGUI.masterSize)							<< '\n';
 
 	fout.close();
 
@@ -43,13 +49,21 @@ void Podo::OptionRestore()
 	bool result = true;
 
 	bool fullScreenEnabledTemp	= false;
-	bool vSyncEnabledTemp = false;
+	int windowSavePosXTemp		= 0;
+	int windowSavePosYTemp		= 0;
+	int windowSaveWidthTemp		= 1600;
+	int windowSaveHeightTemp	= 900;
+	bool vSyncEnabledTemp		= false;
 	bool hdrEnabledTemp			= false;
 	bool rayTracingEnabledTemp	= false;
 	bool meshShaderEnabledTemp	= false;
 	int guiMasterSizeTemp		= 0;
 
 	result &= OptionReadBool(fin, "FullScreen", fullScreenEnabledTemp);
+	result &= OptionReadInt(fin, "WindowSavePosX", windowSavePosXTemp);
+	result &= OptionReadInt(fin, "WindowSavePosY", windowSavePosYTemp);
+	result &= OptionReadInt(fin, "WindowSaveWidth", windowSaveWidthTemp);
+	result &= OptionReadInt(fin, "WindowSaveHeight", windowSaveHeightTemp);
 	result &= OptionReadBool(fin, "VSync", vSyncEnabledTemp);
 	result &= OptionReadBool(fin, "HDR", hdrEnabledTemp);
 	result &= OptionReadBool(fin, "RayTracing", rayTracingEnabledTemp);
@@ -61,12 +75,16 @@ void Podo::OptionRestore()
 		return;
 	}
 
-	m_optionFullScreen.userEnabled	= fullScreenEnabledTemp;
-	m_optionVSync.userEnabled = vSyncEnabledTemp;
-	m_optionHDR.userEnabled			= hdrEnabledTemp;
-	m_optionRayTracing.userEnabled	= rayTracingEnabledTemp;
-	m_optionMeshShader.userEnabled	= meshShaderEnabledTemp;
-	m_optionGUI.masterSize			= std::clamp(guiMasterSizeTemp, 50, 150);
+	m_optionFullScreen.userEnabled		= fullScreenEnabledTemp;
+	m_optionWindowSave.posX				= (LONG)windowSavePosXTemp;
+	m_optionWindowSave.posY				= (LONG)windowSavePosYTemp;
+	m_optionWindowSave.width			= (LONG)windowSaveWidthTemp;
+	m_optionWindowSave.height			= (LONG)windowSaveHeightTemp;
+	m_optionVSync.userEnabled			= vSyncEnabledTemp;
+	m_optionHDR.userEnabled				= hdrEnabledTemp;
+	m_optionRayTracing.userEnabled		= rayTracingEnabledTemp;
+	m_optionMeshShader.userEnabled		= meshShaderEnabledTemp;
+	m_optionGUI.masterSize				= std::clamp(guiMasterSizeTemp, 50, 150);
 }
 
 bool Podo::OptionReadBool(std::ifstream& fin, std::string optionName, bool& outOptionEnabled)

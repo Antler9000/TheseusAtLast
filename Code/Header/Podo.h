@@ -1,4 +1,5 @@
 ﻿#pragma once
+#define NOMINMAX
 #include "BaseApp.h"
 #include "State.h"
 #include "Option.h"
@@ -13,7 +14,6 @@
 #include <dxgicommon.h>
 #include <dxgiformat.h>
 #include <wrl/client.h>
-#include <pix3.h>
 #include <windows.h>
 #include <string>
 #include <fstream>
@@ -22,54 +22,22 @@ class Podo : public BaseApp<Podo>
 {
 public:
 
-	Podo() : BaseApp(L"Podo Nature Engine")
+	Podo(HINSTANCE hInstance, int nCmdShow) : BaseApp(L"Podo Nature Engine", hInstance, nCmdShow)
 	{
+		OptionRestore();
 
+		WorldTimersStop();
+
+		Reset();
 	}
 
 	~Podo()
 	{
+		OptionSave();
+
 		FlushCommandQueue();
-
-		CloseFenceEvent();
-		CloseImGui();
-	}
-
-	void InitApp()
-	{
-		InitFactory();
-		InitAdapterAndOutput();
-		InitDevice();
-		InitFence();
-		InitFenceEvent();
-		InitCommandQueue();
-		InitCommandAllocator();
-		InitCommandList();
-		InitFormatSupport();
-		InitHDRSwapChainSupport();
-		InitSavedOptions();
-		InitScreenMode();
-		InitSwapChain();
-		InitBackBufferInfo();
-		InitViewPort();
-		InitScissorRectangle();
-		InitDepthStencilBuffer();
-		InitDescriptorHeapRTV();
-		InitDescriptorHeapDSV();
-		InitDescriptorHeapCBVSRVUAV();
-		InitRTV();
-		InitDSV();
-		InitCBVSRVUAV();
-		InitImGui();
-		InitTimers();
-
-		m_optionFullScreen.DebugPrint();
-		m_optionVSync.DebugPrint();
-		m_optionTearing.DebugPrint();
-		m_optionHDR.DebugPrint();
-		m_optionRayTracing.DebugPrint();
-		m_optionMeshShader.DebugPrint();
-		m_optionGUI.DebugPrint();
+		
+		Close();
 	}
 
 	int RunMessageLoop()
@@ -78,18 +46,18 @@ public:
 
 		while (msg.message != WM_QUIT)
 		{
-			if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE) != 0)
+			if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE) != FALSE)
 			{
 				TranslateMessage(&msg);
 				DispatchMessage(&msg);
 			}
-			else if (NeedResetDxgiInterface() == true)
+			else if (NeedReset() == true)
 			{
-				ResetDXGIInterface();
+				Reset();
 			}
-			else if (NeedResetScreenSetting() == true)
+			else if (NeedResetInterfaces() == true)
 			{
-				ResetScreenSetting();
+				ResetInterfaces();
 			}
 			else
 			{
@@ -99,21 +67,7 @@ public:
 				}
 				else
 				{
-					PIXScopedEvent(PIX_COLOR_INDEX(1), L"CPU: 1. Frame Time");
-
-					{
-						PIXScopedEvent(PIX_COLOR_INDEX(2), L"CPU: 2. Non-Render Logic");
-
-						UpdateTimers();
-						UpdateCaption();
-						UpdateWorld();
-					}
-
-					{
-						PIXScopedEvent(PIX_COLOR_INDEX(3), L"CPU: 3. Render Logic");
-
-						UpdateRender();
-					}
+					Update();
 				}
 			}
 		}
@@ -126,36 +80,41 @@ public:
 
 private:
 
+	void Reset();
+	void ResetScreenMode();
+	void ResetFullScreenMode();
+	void ResetWindowMode();
+	void ResetInterfaces();
+	void ResetFactory();
+	void ResetAdapterAndOutput();
+	bool ResetOutput(IDXGIAdapter3* pAdapter);
+	void ResetDevice();
+	void ResetFence();
+	void ResetFenceEvent();
+	void ResetCommandQueue();
+	void ResetCommandAllocator();
+	void ResetCommandList();
+	void ResetFormatSupport();
+	void ResetHDRSwapChainSupport();
+	void ResetSwapChain();
+	void ResetBackBufferInfo();
+	void ResetViewPort();
+	void ResetScissorRectangle();
+	void ResetDepthStencilBuffer();
+	void ResetDescriptorHeapRTV();
+	void ResetDescriptorHeapDSV();
+	void ResetDescriptorHeapCBVSRVUAV();
+	void ResetRTV();
+	void ResetDSV();
+	void ResetCBVSRVUAV();
+	void ResetImGui();
+
+	void Close();
 	void CloseFenceEvent();
 	void CloseImGui();
+	void CloseWindowOnException();
 
-	void InitFactory();
-	void InitAdapterAndOutput();
-	bool InitOutput(IDXGIAdapter3* pAdapter);
-	void InitDevice();
-	void InitFence();
-	void InitFenceEvent();
-	void InitCommandQueue();
-	void InitCommandAllocator();
-	void InitCommandList();
-	void InitFormatSupport();
-	void InitHDRSwapChainSupport();
-	void InitSavedOptions();
-	void InitScreenMode();
-	void InitSwapChain();
-	void InitBackBufferInfo();
-	void InitViewPort();
-	void InitScissorRectangle();
-	void InitDepthStencilBuffer();
-	void InitDescriptorHeapRTV();
-	void InitDescriptorHeapDSV();
-	void InitDescriptorHeapCBVSRVUAV();
-	void InitRTV();
-	void InitDSV();
-	void InitCBVSRVUAV();
-	void InitImGui();
-	void InitTimers();
-
+	void Update();
 	void UpdateTimers();
 	void UpdateWorld();
 	void UpdateRender();
@@ -175,23 +134,18 @@ private:
 
 private:
 
-	void FlushCommandQueue();
-	void ResetDXGIInterface();
-	void ResetScreenSetting();
-	void ResetToFullScreenMode();
-	void ResetToWindowMode();
-
 	void OptionSave();
 	void OptionRestore();
 	bool OptionReadBool(std::ifstream& fin, std::string optionName, bool& outOptionEnabled);
 	bool OptionReadInt(std::ifstream& fin, std::string optionName, int& outOptionValue);
 
-public:
+	void FlushCommandQueue();
+	void SaveWindow();
+
+private:
 
 	//NOTE: ImGui에 넘겨주는 콜백 함수 속에서 기능해야 하므로 static으로 둠
 	static inline		ImGuiDescriptorHeapAllocator	m_imGuiDescriptorHeapAllocator		= {};
-
-public:
 
 	static constexpr	UINT							m_screenBackBufferCount				= 2;
 	static constexpr	DXGI_FORMAT						m_screenBackBufferFormatSDR			= DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -210,6 +164,11 @@ private:
 
 	template <typename Interface>
 	using ComPtr = Microsoft::WRL::ComPtr<Interface>;
+
+	bool								NeedReset() const									{ return m_needResetScreenMode; }
+	bool								m_needResetScreenMode								= false;
+	bool								NeedResetInterfaces() const							{ return (m_dxgiFactory->IsCurrent() == FALSE) || m_needResetInterfaces; }
+	bool								m_needResetInterfaces								= false;
 
 	ComPtr<IDXGIFactory6>				m_dxgiFactory;													//NOTE: (기본) 성능순 어댑터 획득
 	ComPtr<IDXGIAdapter3>				m_dxgiAdapter;													//NOTE: (기본) 자원의 메모리 상주성 관리
@@ -231,7 +190,7 @@ private:
 	ComPtr<ID3D12GraphicsCommandList4>	m_commandList4;													//NOTE: (옵션) 레이 트레이싱
 	ComPtr<ID3D12GraphicsCommandList6>	m_commandList6;													//NOTE: (옵션) 메시 셰이더 생성
 	
-	ComPtr<IDXGISwapChain3>				m_screenSwapChain;												//NOTE: (기본) 백버퍼 인덱스 추적
+	ComPtr<IDXGISwapChain3>				m_screenSwapChain;												//NOTE: (기본) 백 버퍼 인덱스 추적
 	ComPtr<ID3D12Resource>				m_screenBackBuffers[m_screenBackBufferCount];
 	UINT								m_screenBackBufferIndex								= 0;
 	UINT								m_screenBackBufferWidth								= 0;
@@ -286,24 +245,12 @@ private:
 
 private:
 
-	bool								NeedResetDxgiInterface() const						{ return (m_dxgiFactory->IsCurrent() == FALSE) || m_needResetAdapterAndOutput; }
-	bool								m_needResetAdapterAndOutput							= false;
-	bool								NeedResetScreenSetting() const						{ return m_needResetScreenMode || m_needResetScreenResolution || m_needResetHDR || m_needResetGUI; }
-	bool								m_needResetScreenMode								= false;
-	bool								m_needResetScreenResolution							= false;
-	bool								m_needResetHDR										= false;
-	bool								m_needResetGUI										= false;
-
-	LONG								m_previousWindowPosX = 0;
-	LONG								m_previousWindowPosY = 0;
-	LONG								m_previousWindowWidth = 1600;
-	LONG								m_previousWindowHeight = 900;
-
 	OptionFullScreen					m_optionFullScreen;
+	OptionWindowSave					m_optionWindowSave;
 	OptionVSync							m_optionVSync;
 	OptionTearing						m_optionTearing;
 	OptionHDR							m_optionHDR;
-	OptionGUI							m_optionGUI;
 	OptionRayTracing					m_optionRayTracing;
 	OptionMeshShader					m_optionMeshShader;
+	OptionGUI							m_optionGUI;
 };

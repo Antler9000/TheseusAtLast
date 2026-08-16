@@ -1,4 +1,5 @@
 ﻿#pragma once
+#define NOMINMAX
 #include <windows.h>
 #include <format>
 #include <string>
@@ -10,27 +11,27 @@ class PodoException : public std::runtime_error
 public:
 
 	template <typename ResultType>
-	PodoException(ResultType result, std::string statement, std::source_location location)
-		: std::runtime_error(ErrorString(ResultString(result), statement, location))
+	PodoException(std::source_location location, std::string statement, ResultType result)
+		: std::runtime_error(ErrorString(location, statement, ResultString(result)))
 	{
 
 	}
 
 private:
 
-	static std::string ErrorString(std::string result, std::string statement, const std::source_location& location)
+	static std::string ErrorString(const std::source_location& location, std::string statement, std::string result)
 	{
 		return std::format(
-			"pResult: {}\n\n"
-			"statement: {}\n\n"
-			"function: {}\n\n"
 			"file: {}\n\n"
-			"line: {}",
-			result,
-			statement,
-			location.function_name(),
+			"function: {}\n\n"
+			"line: {}\n\n"
+			"statement: {}\n\n"
+			"pResult: {}",
 			location.file_name(),
-			location.line()
+			location.function_name(),
+			location.line(),
+			statement,
+			result
 		);
 	}
 
@@ -46,25 +47,25 @@ private:
 
 	static std::string ResultString(void* pResult)
 	{
-		return std::format("0x{:p}", static_cast<const void*>(pResult));
+		return std::format("{:p}", static_cast<const void*>(pResult));
 	}
 };
 
 #define ThrowIfFailed(statement)\
 {\
-	HRESULT pResult = (statement);\
-	if (FAILED(pResult) == true)\
+	HRESULT hResult = (statement);\
+	if (FAILED(hResult) == true)\
 	{\
-		throw PodoException(pResult, #statement, std::source_location::current());\
+		throw PodoException(std::source_location::current(), #statement, hResult);\
 	}\
 }
 
 #define ThrowIfFalse(statement)\
 {\
-	bool pResult = (statement);\
-	if (pResult == false)\
+	bool bResult = (statement);\
+	if (bResult == false)\
 	{\
-		throw PodoException(pResult, #statement, std::source_location::current());\
+		throw PodoException(std::source_location::current(), #statement, bResult);\
 	}\
 }
 
@@ -73,7 +74,7 @@ private:
 	void* pResult = (statement);\
 	if(pResult == nullptr)\
 	{\
-		throw PodoException(pResult, #statement, std::source_location::current());\
+		throw PodoException(std::source_location::current(), #statement, pResult);\
 	}\
 }
 

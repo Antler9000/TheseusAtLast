@@ -1,4 +1,5 @@
-﻿#include "Podo.h"
+﻿#define NOMINMAX
+#include "Podo.h"
 #include "imgui.h"
 #include <windows.h>
 #include <windowsx.h>
@@ -96,10 +97,10 @@ LRESULT Podo::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 		case WM_SYSKEYDOWN:
 		{
-			//NOTE: ALT+ENTER을 이용한 전체 화면 모드 전환을 처리함
+			//NOTE: ALT+ENTER을 누르는 경우
 			if (wParam == VK_RETURN && (lParam & 0x40000000) == 0)
 			{
-				m_optionFullScreen.userEnabled = !m_optionFullScreen.userEnabled;
+				m_optionFullScreen.SetUserEnabled(!m_optionFullScreen.userEnabled);
 				m_needResetScreenMode = true;
 
 				return 0;
@@ -110,7 +111,7 @@ LRESULT Podo::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 		case WM_SYSCHAR:
 		{
-			//NOTE: ALT+ENTER을 이용한 전체 화면 모드 전환시 윈도우 알림음이 안 나도록 함
+			//NOTE: ALT+ENTER을 누르는 경우 윈도우 알림음이 안 나도록 함
 			if (wParam == '\r')
 			{
 				return 0;
@@ -119,6 +120,7 @@ LRESULT Podo::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			return DefWindowProc(m_hWnd, uMsg, wParam, lParam);
 		}
 
+		//NOTE: 창 테두리를 직접 끌어서 위치나 크기를 변화시키기를 시작하는 경우
 		case WM_ENTERSIZEMOVE:
 		{
 			m_isWindowResizing = true;
@@ -127,33 +129,35 @@ LRESULT Podo::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			return 0;
 		}
 
+		//NOTE: 창 테두리를 직접 끌어서 위치나 크기를 변화시키기를 멈추는 경우
 		case WM_EXITSIZEMOVE:
 		{
-			RECT rectClient = {};
-			BOOL queryResult = GetClientRect(m_hWnd, &rectClient);
-			if (queryResult != FALSE)
-			{
-				LONG widthClient = rectClient.right - rectClient.left;
-				LONG heightClient = rectClient.bottom - rectClient.top;
-
-				if (widthClient >= 10 && heightClient >= 10)
-				{
-					m_needResetScreenResolution = true;
-					m_needResetAdapterAndOutput = true;
-				}
-			}
-
 			m_isWindowResizing = false;
 			m_isWindowMoving = false;
+
+			m_needResetInterfaces = true;
+
+			SaveWindow();
 
 			return 0;
 		}
 
+		//NOTE: 창 테두리를 끌어 크기를 변화시키는 경우, 최대화 버튼을 누르거나 최소화 버튼을 누르는 경우, SetWindowPos(..)를 호출한 경우
 		case WM_SIZE:
 		{
-			if (wParam == SIZE_MINIMIZED)
+			switch (wParam)
 			{
-				return 0;
+				case SIZE_MINIMIZED:
+				{
+					m_isWindowMinimized = true;
+					break;
+				}
+				case SIZE_RESTORED:
+				case SIZE_MAXIMIZED:
+				{
+					m_isWindowMinimized = false;
+					break;
+				}
 			}
 
 			if (m_isWindowResizing == true)
@@ -161,55 +165,43 @@ LRESULT Podo::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 				return 0;
 			}
 
-			m_needResetScreenResolution = true;
+			m_needResetInterfaces = true;
+
+			SaveWindow();
 
 			return 0;
 		}
 
+		//NOTE: 창 테두리를 끌어 위치를 이동시키는 경우, 창 테두리를 끌어 크기를 변화시킬 때 좌상단 기준점이 변하는 경우,
+		//		최대화 버튼이나 최소화 버튼을 누르는 경우, SetWindowPos(..)를 호출한 경우
 		case WM_MOVE:
 		{
-			if (IsIconic(m_hWnd) != FALSE)
-			{
-				return 0;
-			}
-
 			if (m_isWindowMoving == true)
 			{
 				return 0;
 			}
 
-			m_needResetAdapterAndOutput = true;
+			m_needResetInterfaces = true;
+
+			SaveWindow();
 
 			return 0;
 		}
 
+		//NOTE: NVIDIA 제어판의 해상도-주사율-GSYNC 설정이 바뀌는 경우, 윈도우 디스플레이 설정의 HDR 설정이 켜지거나 꺼지는 경우
 		case WM_DISPLAYCHANGE:
 		{
-			m_needResetScreenMode = true;
-
-			return 0;
-		}
-
-		case WM_ACTIVATE:
-		{
-			bool isMinimized = (HIWORD(wParam) != 0);
-			if (isMinimized == true)
-			{
-				m_isWindowMinimized = true;
-			}
-			else
-			{
-				m_isWindowMinimized = false;
-			}
+			m_needResetInterfaces = true;
 
 			return 0;
 		}
 		
-		//NOTE: ALT+F4 혹은 우상단 창닫기 버튼을 이용한 종료를 처리함
+		//NOTE: ALT+F4 단축키를 누르는 경우, 우상단의 창 닫기 버튼을 누르는 경우, 작업바의 창 닫기 버튼을 누르는 경우,
+		//		작업관리자 프로세스 종료를 누르는 경우
 		case WM_CLOSE:
 		{
-			OptionSave();
 			DestroyWindow(m_hWnd);
+			m_hWnd = nullptr;
 
 			return 0;
 		}

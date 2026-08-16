@@ -1,4 +1,5 @@
-﻿#include "Podo.h"
+﻿#define NOMINMAX
+#include "Podo.h"
 #include <windows.h>
 #include <stdexcept>
 
@@ -25,9 +26,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 
 	try
 	{
-		Podo podoInstance;
-		podoInstance.CreateAppWindow(hInstance, nCmdShow);
-		podoInstance.InitApp();
+		Podo podoInstance(hInstance, nCmdShow);
 		return podoInstance.RunMessageLoop();
 	}
 	catch (const std::runtime_error& exception)

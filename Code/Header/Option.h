@@ -1,4 +1,8 @@
 ﻿#pragma once
+#define NOMINMAX
+#include <windows.h>
+#include <string>
+#include <format>
 
 struct OptionFullScreen
 {
@@ -14,11 +18,93 @@ struct OptionFullScreen
 		return true;
 	}
 
+	void SetUserEnabled(bool setting)
+	{
+		if ((setting == true) && (IsSupported() == true))
+		{
+			userEnabled = true;
+		}
+		else
+		{
+			userEnabled = false;
+		}
+	}
+
 	void DebugPrint() const
 	{
 #ifdef _DEBUG
 		OutputDebugStringW(userEnabled ? L"[PODO DEBUG] FullScreen: 유저 활성화 On\n" : L"[PODO DEBUG] FullScreen: 유저 활성화 off\n");
 		OutputDebugStringW(IsActive() ? L"[PODO DEBUG] => FullScreen On \n" : L"[PODO DEBUG] => FullScreen Off \n");
+		OutputDebugStringW(L"\n");
+#endif
+	}
+};
+
+struct OptionWindowSave
+{
+	LONG posX = 0;
+	LONG posY = 0;
+	LONG width = 1600;
+	LONG height = 900;
+
+	bool IsActive() const
+	{
+		return IsSupported();
+	}
+
+	bool IsSupported() const
+	{
+		return true;
+	}
+
+	void SetWindowRect(RECT setting)
+	{
+		LONG newPosX = setting.left;
+		LONG newPosY = setting.top;
+		LONG newWidth = setting.right - setting.left;
+		LONG newHeight = setting.bottom - setting.top;
+
+		if ((10 < newWidth) && (10 < newHeight))
+		{
+			posX = newPosX;
+			posY = newPosY;
+			width = newWidth;
+			height = newHeight;
+		}
+	}
+
+	LONG GetWindowPosX() const
+	{
+		return posX;
+	}
+
+	LONG GetWindowPosY() const
+	{
+		return posY;
+	}
+
+	LONG GetWindowWidth() const
+	{
+		return width;
+	}
+
+	LONG GetWindowHeight() const
+	{
+		return height;
+	}
+
+	void DebugPrint() const
+	{
+#ifdef _DEBUG
+		std::wstring posXString = std::format(L"[PODO DEBUG] WindowSave: PosX {}\n", posX);
+		std::wstring posYString = std::format(L"[PODO DEBUG] WindowSave: PosY {}\n", posY);
+		std::wstring widthString = std::format(L"[PODO DEBUG] WindowSave: Width {}\n", width);
+		std::wstring heightString = std::format(L"[PODO DEBUG] WindowSave: Height {}\n", height);
+		OutputDebugStringW(posXString.c_str());
+		OutputDebugStringW(posYString.c_str());
+		OutputDebugStringW(widthString.c_str());
+		OutputDebugStringW(heightString.c_str());
+		OutputDebugStringW(IsActive() ? L"[PODO DEBUG] => WindowSave On \n" : L"[PODO DEBUG] => WindowSave Off \n");
 		OutputDebugStringW(L"\n");
 #endif
 	}
@@ -36,6 +122,18 @@ struct OptionVSync
 	bool IsSupported() const
 	{
 		return true;
+	}
+
+	void SetUserEnabled(bool setting)
+	{
+		if ((setting == true) && (IsSupported() == true))
+		{
+			userEnabled = true;
+		}
+		else
+		{
+			userEnabled = false;
+		}
 	}
 
 	void DebugPrint() const
@@ -62,41 +160,16 @@ struct OptionTearing
 		return featureSupported;
 	}
 
+	void SetFeatureSupported(bool setting)
+	{
+		featureSupported = setting;
+	}
+
 	void DebugPrint() const
 	{
 #ifdef _DEBUG
 		OutputDebugStringW(featureSupported ? L"[PODO DEBUG] Tearing: 피처 지원 On\n" : L"[PODO DEBUG] Tearing: 피처 지원 off\n");
 		OutputDebugStringW(IsActive() ? L"[PODO DEBUG] => Tearing On \n" : L"[PODO DEBUG] => Tearing Off \n");
-		OutputDebugStringW(L"\n");
-#endif
-	}
-};
-
-struct OptionRayTracing
-{
-	bool deviceSupported		= false;
-	bool featureSupported		= false;
-	bool commandListSupported	= false;
-	bool userEnabled			= false;
-
-	bool IsActive() const
-	{
-		return IsSupported() && userEnabled;
-	}
-
-	bool IsSupported() const
-	{
-		return deviceSupported && featureSupported && commandListSupported;
-	}
-
-	void DebugPrint() const
-	{
-#ifdef _DEBUG
-		OutputDebugStringW(deviceSupported		? L"[PODO DEBUG] RayTracing: 디바이스 지원 On\n"		: L"[PODO DEBUG] RayTracing: 디바이스 지원 off\n");
-		OutputDebugStringW(featureSupported		? L"[PODO DEBUG] RayTracing: 피처 지원 On\n"			: L"[PODO DEBUG] RayTracing: 피처 지원 off\n");
-		OutputDebugStringW(commandListSupported	? L"[PODO DEBUG] RayTracing: 커맨드 리스트 지원 On\n"	: L"[PODO DEBUG] RayTracing: 커맨드 리스트 지원 off\n");
-		OutputDebugStringW(userEnabled			? L"[PODO DEBUG] RayTracing: 유저 활성화 On\n"			: L"[PODO DEBUG] RayTracing: 유저 활성화 off\n");
-		OutputDebugStringW(IsActive()			? L"[PODO DEBUG] => RayTracing On \n"					: L"[PODO DEBUG] => RayTracing Off \n");
 		OutputDebugStringW(L"\n");
 #endif
 	}
@@ -119,6 +192,45 @@ struct OptionHDR
 		return outputSupported && formatSupported && colorSpaceSupported;
 	}
 
+	void SetOutputSupported(bool setting)
+	{
+		outputSupported = setting;
+		if (setting == false)
+		{
+			userEnabled = false;
+		}
+	}
+
+	void SetFormatSupported(bool setting)
+	{
+		formatSupported = setting;
+		if (setting == false)
+		{
+			userEnabled = false;
+		}
+	}
+
+	void SetColorSpaceSupported(bool setting)
+	{
+		colorSpaceSupported = setting;
+		if (setting == false)
+		{
+			userEnabled = false;
+		}
+	}
+
+	void SetUserEnabled(bool setting)
+	{
+		if ((setting == true) && (IsSupported() == true))
+		{
+			userEnabled = true;
+		}
+		else
+		{
+			userEnabled = false;
+		}
+	}
+
 	void DebugPrint() const
 	{
 #ifdef _DEBUG
@@ -127,6 +239,75 @@ struct OptionHDR
 		OutputDebugStringW(colorSpaceSupported ? L"[PODO DEBUG] HDR: 색 공간 지원 On\n" : L"[PODO DEBUG] HDR: 색 공간 지원 off\n");
 		OutputDebugStringW(userEnabled ? L"[PODO DEBUG] HDR: 유저 활성화 On\n" : L"[PODO DEBUG] HDR: 유저 활성화 off\n");
 		OutputDebugStringW(IsActive() ? L"[PODO DEBUG] => HDR On \n" : L"[PODO DEBUG] => HDR Off \n");
+		OutputDebugStringW(L"\n");
+#endif
+	}
+};
+
+struct OptionRayTracing
+{
+	bool deviceSupported		= false;
+	bool featureSupported		= false;
+	bool commandListSupported	= false;
+	bool userEnabled			= false;
+
+	bool IsActive() const
+	{
+		return IsSupported() && userEnabled;
+	}
+
+	bool IsSupported() const
+	{
+		return deviceSupported && featureSupported && commandListSupported;
+	}
+
+	void SetDeviceSupported(bool setting)
+	{
+		deviceSupported = setting;
+		if (setting == false)
+		{
+			userEnabled = false;
+		}
+	}
+
+	void SetFeatureSupported(bool setting)
+	{
+		featureSupported = setting;
+		if (setting == false)
+		{
+			userEnabled = false;
+		}
+	}
+
+	void SetCommandListSupported(bool setting)
+	{
+		commandListSupported = setting;
+		if (setting == false)
+		{
+			userEnabled = false;
+		}
+	}
+
+	void SetUserEnabled(bool setting)
+	{
+		if ((setting == true) && (IsSupported() == true))
+		{
+			userEnabled = true;
+		}
+		else
+		{
+			userEnabled = false;
+		}
+	}
+
+	void DebugPrint() const
+	{
+#ifdef _DEBUG
+		OutputDebugStringW(deviceSupported		? L"[PODO DEBUG] RayTracing: 디바이스 지원 On\n"		: L"[PODO DEBUG] RayTracing: 디바이스 지원 off\n");
+		OutputDebugStringW(featureSupported		? L"[PODO DEBUG] RayTracing: 피처 지원 On\n"			: L"[PODO DEBUG] RayTracing: 피처 지원 off\n");
+		OutputDebugStringW(commandListSupported	? L"[PODO DEBUG] RayTracing: 커맨드 리스트 지원 On\n"	: L"[PODO DEBUG] RayTracing: 커맨드 리스트 지원 off\n");
+		OutputDebugStringW(userEnabled			? L"[PODO DEBUG] RayTracing: 유저 활성화 On\n"			: L"[PODO DEBUG] RayTracing: 유저 활성화 off\n");
+		OutputDebugStringW(IsActive()			? L"[PODO DEBUG] => RayTracing On \n"					: L"[PODO DEBUG] => RayTracing Off \n");
 		OutputDebugStringW(L"\n");
 #endif
 	}
@@ -147,6 +328,45 @@ struct OptionMeshShader
 	bool IsSupported() const
 	{
 		return deviceSupported && featureSupported && commandListSupported;
+	}
+
+	void SetDeviceSupported(bool setting)
+	{
+		deviceSupported = setting;
+		if (setting == false)
+		{
+			userEnabled = false;
+		}
+	}
+
+	void SetFeatureSupported(bool setting)
+	{
+		featureSupported = setting;
+		if (setting == false)
+		{
+			userEnabled = false;
+		}
+	}
+
+	void SetCommandListSupported(bool setting)
+	{
+		commandListSupported = setting;
+		if (setting == false)
+		{
+			userEnabled = false;
+		}
+	}
+
+	void SetUserEnabled(bool setting)
+	{
+		if ((setting == true) && (IsSupported() == true))
+		{
+			userEnabled = true;
+		}
+		else
+		{
+			userEnabled = false;
+		}
 	}
 
 	void DebugPrint() const
@@ -176,6 +396,21 @@ struct OptionGUI
 		return true;
 	}
 
+	void SetMasterSize(int setting)
+	{
+		masterSize = setting;
+	}
+
+	void SetMasterScale(float setting)
+	{
+		masterSize = static_cast<int>(setting) * 100;
+	}
+
+	int GetMasterSize() const
+	{
+		return masterSize;
+	}
+	
 	float GetMasterScale() const
 	{
 		return static_cast<float>(masterSize) / 100;

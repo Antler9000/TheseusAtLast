@@ -3,7 +3,7 @@ HLSL, D3D12, Win32, C++을 이용하여 구현 중인 실시간 3D 엔진입니�
 
 사용자가 가상 자연환경을 구성할 수 있도록 하는 것을 목표로 하고 있습니다.
 
-현재 기초적인 렌더링 기능을 추가하고 있습니다.
+현재 실행 중의 인터페이스 초기화 과정을 최적화하고 있습니다.
 
 <br>
 
@@ -85,9 +85,9 @@ HLSL, D3D12, Win32, C++을 이용하여 구현 중인 실시간 3D 엔진입니�
 
 2. 로딩이 완료되면 Click here to start 버튼이 중앙 하단에 나타납니다. 이를 눌러 시작합니다.
 
-3. 마우스 오른쪽 버튼을 누른 채로 마우스를 이동시키면 시야 방향이 회전합니다. WASD 키로 시야의 위치를 이동시킵니다(미구현).
+3. 마우스 우클릭을 통해 시야의 방향을 회전시킵니다. WASD 키로 시야의 위치를 이동시킵니다(미구현).
 
-4. 마우스 왼쪽 버튼을 통해 월드를 조작할 수 있습니다(미구현).
+4. 마우스 좌클릭을 통해 월드를 조작할 수 있습니다(미구현).
 
 5. 왼쪽 상단의 Menu 버튼을 누르면 메뉴와 함께 옵션이 나타납니다.
 
@@ -139,7 +139,7 @@ HLSL, D3D12, Win32, C++을 이용하여 구현 중인 실시간 3D 엔진입니�
 ### 3.4. 옵션 기능
 |옵션                   |설정값                                       |
 |-----------------------|---------------------------------------------|
-|창 모드                |창 모드 or 테두리 없는 전체 창 모드          |
+|창 모드                |창 모드 or 테두리 없는 창 모드               |
 |VSync                  |Off or On                                    |
 |Tearing                |피처 지원 여부와 VSync 여부에 따라 자동 적용 |
 |HDR(미구현)            |Off or On                                    |
@@ -180,7 +180,7 @@ PIX의 Sequential Timing Capture를 이용하여 업데이트 로직의 구간�
 
 Metrics 값을 통해 각 구간의 소요 시간을 확인합니다.
 
-측정은 테두리 없는 전체 창 모드 상태에서 VSync를 끈 경우와 켠 경우로 나누어 캡처합니다.
+측정은 테두리 없는 창 모드 상태에서 VSync를 끈 경우와 켠 경우로 나누어 캡처합니다.
 
 캡처 시작 및 종료 버튼을 누르기 위해 PIX와 애플리케이션 사이의 화면 전환 시점이 캡처에 포함되어 있습니다.
 
@@ -213,7 +213,7 @@ Metrics 값을 통해 각 구간의 소요 시간을 확인합니다.
 
 - GPU 명령이 모두 소진될 때까지 CPU를 대기시키는 현 로직으로 인해, 커맨드 리스트 초기화 과정에서 CPU 프레임 시간의 약 25%가 대기 상태로 낭비되고 있습니다.
 
-- 기하 그리기가 구현되지 않았으므로, GPU의 연산 대부분은 백버퍼의 색상을 초기화하는 로직이 포함된 자원 바인딩 구간에서 발생하고 있습니다.
+- 기하 그리기가 구현되지 않았으므로, GPU의 연산 대부분은 백 버퍼의 색상을 초기화하는 로직이 포함된 자원 바인딩 구간에서 발생하고 있습니다.
 
 <br>
 
@@ -317,51 +317,69 @@ Frank Luna의 D3D12 입문서에서 NuGet을 사용하는 것을 참고하였으
 
 
 
-### 5.3. 초기화 로직
-D3D12와 관련된 여러 COM 인터페이스를 얻고, 피처 지원 여부를 확인하고, 저장된 옵션을 불러오고, ImGui를 초기화하기 위해 아래와 같은 일련의 과정을 수행합니다.
+### 5.3. 생성 및 초기화 로직
+저장된 옵션을 복원하고, 창 크기와 위치를 설정하고, D3D12 및 DXGI와 관련된 여러 COM 인터페이스를 얻고, 기능 지원 여부를 확인하기 위해 아래와 같은 일련의 과정을 수행합니다.
 
-필요 시 초기화 로직이 여러 번 호출될 수도 있도록, 각 초기화 하위 메서드는 기존에 획득한 인터페이스를 해제하는 과정을 먼저 수행하도록 구현하였습니다.
-
-실제 사용할 스왑 체인을 생성하기에 앞서 HDR을 고려하여 다음과 같은 과정을 거치도록 하였습니다.
-
-1. `InitFormatSupport()`      : HDR 포맷으로 스왑 체인을 생성할 수 있는지 여부를 확인합니다.
-
-2. `InitHDRSwapChainSupport()`: HDR 포맷으로 생성한 스왑 체인을 통해 HDR 색 공간이 사용 가능한지 여부를 조회합니다. 이 시점에서 HDR 사용 가능 여부가 결정됩니다.
-
-3. `InitSavedOptions()`       : 사용자가 이전에 저장한 창 모드 옵션 값과 HDR 제시 옵션 값을 불러들입니다. 저장된 HDR 옵션 값이 `Yes`이더라도 이번 실행 환경에서 해당 옵션이 지원되지 않으면 비활성화합니다.
-
-4. `InitScreenMode()`         : 직전의 과정에서 알아낸 옵션 값을 통해 창 모드 혹은 테두리 없는 전체 창 모드를 설정합니다. 이후 창의 크기에 맞춰 스왑 체인의 백버퍼 크기가 결정됩니다.
+필요 시 초기화 로직이 여러 번 호출될 수 있도록 각 초기화 하위 메서드는 기존에 획득한 인터페이스를 먼저 해제하도록 구현하였습니다.
 
 ```cpp
-void InitApp()
+Podo::Podo(HINSTANCE hInstance, int nCmdShow) : BaseApp(L"Podo Nature Engine", hInstance, nCmdShow)
 {
-	InitFactory();
-	InitAdapterAndOutput();
-	InitDevice();
-	InitFence();
-	InitFenceEvent();
-	InitCommandQueue();
-	InitCommandAllocator();
-	InitCommandList();
-	InitFormatSupport();
-	InitHDRSwapChainSupport();
-	InitSavedOptions();
-	InitScreenMode();
-	InitSwapChain();
-	InitBackBufferInfo();
-	InitViewPort();
-	InitScissorRectangle();
-	InitDepthStencilBuffer();
-	InitDescriptorHeapRTV();
-	InitDescriptorHeapDSV();
-	InitDescriptorHeapCBVSRVUAV();
-	InitRTV();
-	InitDSV();
-	InitCBVSRVUAV();
-	InitImGui();
-	InitTimers();
+  OptionRestore();
 
-	//...
+  WorldTimersStop();
+
+  Reset();
+}
+
+void Podo::Reset()
+{
+	ResetScreenMode();
+	ResetInterfaces();
+
+  m_needResetScreenMode = false;
+}
+
+void Podo::ResetScreenMode()
+{
+	if (m_optionFullScreen.IsActive() == true)
+	{
+		ResetFullScreenMode();
+	}
+	else
+	{
+		ResetWindowMode();
+	}
+}
+
+void Podo::ResetInterfaces()
+{
+	FlushCommandQueue();
+
+	ResetFactory();
+	ResetAdapterAndOutput();
+	ResetDevice();
+	ResetFence();
+	ResetFenceEvent();
+	ResetCommandQueue();
+	ResetCommandAllocator();
+	ResetCommandList();
+	ResetFormatSupport();
+	ResetHDRSwapChainSupport();
+	ResetSwapChain();
+	ResetBackBufferInfo();
+	ResetViewPort();
+	ResetScissorRectangle();
+	ResetDepthStencilBuffer();
+	ResetDescriptorHeapRTV();
+	ResetDescriptorHeapDSV();
+	ResetDescriptorHeapCBVSRVUAV();
+	ResetRTV();
+	ResetDSV();
+	ResetCBVSRVUAV();
+	ResetImGui();
+
+  m_needResetInterfaces = false;
 }
 ```
 <br>
@@ -369,38 +387,67 @@ void InitApp()
 
 
 
-### 5.4. 업데이트 로직
-일반적인 메시지 루프를 통하여 애플리케이션의 업데이트 로직을 수행합니다.
+### 5.4. 종료 로직
+다음 실행 시 복원하여 사용할 수 있도록 옵션을 저장합니다.
+
+그리고 오류를 예방하기 위해, GPU에 제출된 명령이 모두 실행된 후 자원과 명령 할당자가 소멸되도록 합니다.
+
+예외가 발생하여 애플리케이션 객체가 소멸되었음에도 객체의 메시지 핸들러가 윈도우 프로시저로 호출되는 경우가 없도록 창을 삭제합니다.
+
+```cpp
+Podo::~Podo()
+{
+  OptionSave();
+
+  FlushCommandQueue();
+  
+  Close();
+}
+
+void Podo::Close()
+{
+	CloseFenceEvent();
+	CloseImGui();
+	CloseWindowOnException();
+}
+```
+<br>
+
+
+
+
+### 5.5. 업데이트 로직
+일반적인 메시지 루프를 통해 애플리케이션의 업데이트 로직을 수행합니다.
 
 메시지 큐에 메시지가 있으면 이를 처리하는 것을 우선합니다.
 
-그리고 GPU 연결이 변해 어댑터 인터페이스를 초기화해야 하거나, 창이 위치한 디스플레이가 바뀌어 아웃풋 인터페이스를 초기화해야 하는 경우라면 이를 처리하도록 합니다.
+창의 크기와 위치를 수정하면, 주 모니터를 나타내는 아웃풋 인터페이스를 초기화하거나 스왑 체인의 백 버퍼를 조정할 필요가 있으므로 D3D12 및 DXGI와 관련된 인터페이스를 이어서 초기화하도록 하였습니다.
 
-그리고 창 모드, 화면 크기, HDR 옵션, GUI 크기 옵션이 변한 경우에 이와 관련된 자원이나 상태를 초기화합니다.
+반대로 창의 크기는 인터페이스들을 초기화하는 로직에 영향을 받지 않고, 오직 애플리케이션의 테두리 없는 창 모드 설정의 변화나 윈도우에 의한 창 크기 제어에만 영향을 받으므로, 두 초기화를 구분하여 필요한 부분만 호출을 요청할 수 있도록 하였습니다.
 
-위의 어느 경우에도 해당하지 않는다면 월드 업데이트나 렌더와 같은 작업을 수행합니다. 다만 월드 업데이트는 엔진이 메뉴 상태에 있다면 수행되지 않고, 렌더 업데이트는 창의 크기가 변화하는 도중엔 수행되지 않습니다.
+위의 어느 경우에도 해당하지 않는다면 월드 업데이트나 렌더링과 같은 작업을 수행합니다. 다만 월드 업데이트는 엔진이 메뉴 상태에 있다면 수행되지 않고, 렌더 업데이트는 창 크기나 위치가 변화하는 도중엔 수행되지 않습니다.
 
-이 두 가지 업데이트가 모두 멈추었다면 스레드를 0.1초간 잠들게 하여 불필요한 연산을 방지합니다.
+이 두 가지 업데이트가 모두 중지되었다면 스레드를 0.1초간 재우는 동작을 반복하여 불필요한 연산을 방지합니다.
 
 ```cpp
-int RunMessageLoop()
+int Podo::RunMessageLoop()
 {
   MSG msg = { };
 
   while (msg.message != WM_QUIT)
   {
-    if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE) != 0)
+    if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE) != FALSE)
     {
       TranslateMessage(&msg);
       DispatchMessage(&msg);
     }
-    else if (NeedResetDxgiInterface() == true)
+    else if (NeedReset() == true)
     {
-      ResetDXGIInterface();
+      Reset();
     }
-    else if (NeedResetScreenSetting() == true)
+    else if (NeedResetInterfaces() == true)
     {
-      ResetScreenSetting();
+      ResetInterfaces();
     }
     else
     {
@@ -410,30 +457,38 @@ int RunMessageLoop()
       }
       else
       {
-        //...
-
-        UpdateTimers();
-        UpdateWorld();
-        UpdateRender();
-        UpdateCaption();
+        Update();
       }
     }
   }
 
   return (int)msg.wParam;
 }
+
+void Podo::Update()
+{
+  UpdateTimers();
+  UpdateCaption();
+  UpdateWorld();
+  UpdateRender();
+}
+
+bool  NeedReset() const           { return m_needResetScreenMode; }
+bool  m_needResetScreenMode       = false;
+bool  NeedResetInterfaces() const { return (m_dxgiFactory->IsCurrent() == FALSE) || m_needResetInterfaces; }
+bool  m_needResetInterfaces       = false;
 ```
 <br>
 
 
 
 
-### 5.5. 조작 로직
+### 5.6. 조작 로직
 일반적인 윈도우 메시지 처리 방식을 사용하고 있습니다.
 
-이를 통해 마우스 좌클릭 월드 조작(미구현), 마우스 우클릭 시야 회전(미구현), 마우스 휠 시야 앞뒤 이동(미구현), WASD 시야 이동(미구현), ALT+ENTER 창 모드 전환 단축키, ALT+F4 종료 단축키, 창 모서리 크기 변화, 창 위치 변화를 처리합니다.
+이를 통해 마우스 좌클릭 월드 조작(미구현), 마우스 우클릭 시야 회전(미구현), 마우스 휠 시야 앞뒤 이동(미구현), WASD 시야 이동(미구현), ALT+ENTER 창 모드 전환 단축키, ALT+F4 종료 단축키, 창 크기 변화, 창 위치 변화를 처리합니다.
 
-메뉴 상태 전환 ESC 단축키는 윈도우 메시지를 직접 처리하지 않고 `ImGui::IsKeyPressed(..)`를 통해 처리하고 있습니다.
+메뉴 상태 전환 ESC 단축키는 윈도우 메시지를 직접 처리하지 않고 `ImGui::IsKeyPressed(...)`를 통해 처리하고 있습니다.
 
 ```cpp
 LRESULT Podo::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -461,23 +516,6 @@ LRESULT Podo::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
   }
 
 	return DefWindowProc(m_hWnd, uMsg, wParam, lParam);
-}
-```
-<br>
-
-
-
-
-### 5.6. 종료 로직
-오류를 예방하기 위해, GPU에 제출된 명령이 모두 실행된 후 애플리케이션이 종료되도록 합니다.
-
-```cpp
-~Podo()
-{
-	FlushCommandQueue();
-
-	CloseFenceEvent();
-	CloseImGui();
 }
 ```
 <br>
@@ -519,6 +557,11 @@ LRESULT Podo::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 <!----------------------------------------------------------------------------------------------------------------------------------------------->
 ## 6. 구현 예정
+- **초기화 기능**
+  - 실행 중 초기화의 단계 분할
+
+<br>
+
 - **단일 PSO 기능**
   - 에셋 로드
   - 정점 버퍼, 인덱스 버퍼, 텍스처
@@ -534,8 +577,6 @@ LRESULT Podo::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
   - 파이프라인 상태 객체
   - SDR 감마 인코딩-디코딩
   - 카메라 조작 기능
-  - 오브젝트 수 조절 기능
-  - 가상 CPU 부하 조절 기능
 
 <br>
 
@@ -579,7 +620,7 @@ LRESULT Podo::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 - **제시 개선**
   - 지연 한도 설정(`SetMaximumFrameLatency`, `WaitableObject`)
   - HDR 제시(톤 매핑, 색역 매핑, PQ 전달 함수)
-  - 백버퍼, GUI 해상도와 독립적인 렌더 해상도 조절 기능
+  - 백 버퍼, GUI 해상도와 독립적인 렌더 해상도 조절 기능
 
 <br>
 
@@ -595,11 +636,6 @@ LRESULT Podo::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 - **윈도우 DPI 설정값 자동 반영**  
   본 엔진은 DPI 설정값에 의한 윈도우의 자동 스케일링으로 화면이 훼손되지 않도록 DPI AWARENESS를 매니페스트에 명시하였습니다. 윈도우의 DPI 설정값은 GUI 크기에 반영하지 않고, 대신 옵션에서 GUI의 배율을 50%, 75%, 100%, 125%, 150% 중에서 선택할 수 있도록 간단히 구현하였습니다.
-
-<br>
-
-- **심화 렌더링 기법**  
-  캐스케이드 셰도우 매핑과 같은 심화 렌더링 기법은 프로젝트 규모를 제한하고자 제외하였습니다.
 
 <br>
 

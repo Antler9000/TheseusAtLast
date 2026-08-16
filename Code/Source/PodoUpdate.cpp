@@ -13,11 +13,32 @@
 #include <windows.h>
 #include <dxgi.h>
 #include <pix3.h>
+#include <PIXEvents.h>
 #include <string>
+#include <format>
 #include <cstdlib>
 
 using namespace DirectX;
 using std::wstring;
+
+void Podo::Update()
+{
+	PIXScopedEvent(PIX_COLOR_INDEX(1), L"CPU: 1. Frame Time");
+
+	{
+		PIXScopedEvent(PIX_COLOR_INDEX(2), L"CPU: 2. Non-Render Logic");
+
+		UpdateTimers();
+		UpdateCaption();
+		UpdateWorld();
+	}
+
+	{
+		PIXScopedEvent(PIX_COLOR_INDEX(3), L"CPU: 3. Render Logic");
+
+		UpdateRender();
+	}
+}
 
 void Podo::UpdateTimers()
 {
@@ -25,6 +46,37 @@ void Podo::UpdateTimers()
 	m_worldTimerFrame.Update();
 
 	m_worldTimerFrame.Mark();
+}
+
+void Podo::UpdateCaption()
+{
+#ifdef _DEBUG
+	static Timer worldTimerCaption;
+
+	worldTimerCaption.Update();
+
+	//NOTE: SetWindowTextW를 너무 자주 호출하면 시스템 부하로 인해 윈도우 전체가 먹통이 되니 반복에 텀을 주자
+	if (worldTimerCaption.GetTimeMilli() > 100.0f)
+	{
+
+		int fps = (m_worldTimerFrame.GetTimeMilli() != 0) ? static_cast<int>(1000 / m_worldTimerFrame.GetTimeMilli()) : 0;
+
+		wstring caption = std::format(
+			L"{} (월드 경과 시간: {:06.1F} s / 월드 프레임 시간: {:0.4f} ms / FPS: {:3d} fps / 마우스 위치: {:04d} p, {:04d} p / 스크롤 각도: {:04d} unit)",
+			m_pAppName,
+			m_worldTimerTotal.GetTimeMilli() / 1000,
+			m_worldTimerFrame.GetTimeMilli(),
+			(fps > 999) ? 999 : fps,
+			m_inputMousePositionClient.x,
+			m_inputMousePositionClient.y,
+			m_inputScrollDelta
+		);
+
+		SetWindowTextW(m_hWnd, caption.c_str());
+
+		worldTimerCaption.Mark();
+	}
+#endif
 }
 
 void Podo::UpdateWorld()
@@ -235,7 +287,6 @@ void Podo::UpdateGUIMenu(ImGuiViewport* pImGuiViewPort, ImVec2 imGuiCenterPos)
 	bool escKeyPressed = ImGui::IsKeyPressed(ImGuiKey_Escape, false);
 	if (backButtonClicked == true || escKeyPressed == true)
 	{
-		OptionSave();
 		m_engineStatePresent = ENGINE_STATE_RUNTIME;
 		WorldTimersStart();
 	}
@@ -245,8 +296,8 @@ void Podo::UpdateGUIMenu(ImGuiViewport* pImGuiViewPort, ImVec2 imGuiCenterPos)
 	bool exitToWindowButtonClicked = ImGui::Button("Exit", m_imGuiSmallButtonSize);
 	if (exitToWindowButtonClicked == true)
 	{
-		OptionSave();
 		DestroyWindow(m_hWnd);
+		m_hWnd = nullptr;
 	}
 
 	bool previousFullScreenState = m_optionFullScreen.IsActive();
@@ -286,7 +337,7 @@ void Podo::UpdateGUIMenu(ImGuiViewport* pImGuiViewPort, ImVec2 imGuiCenterPos)
 	int selectedIndex = (m_optionGUI.masterSize - 50) / 25;
 	if (ImGui::Combo("Master Size", &selectedIndex, masterSizeStringArray, _countof(masterSizeStringArray)) == true)
 	{
-		m_optionGUI.masterSize = 50 + 25 * selectedIndex;
+		m_optionGUI.SetMasterSize(50 + 25 * selectedIndex);
 	}
 
 	bool nowFullScreenState = m_optionFullScreen.IsActive();
@@ -299,43 +350,12 @@ void Podo::UpdateGUIMenu(ImGuiViewport* pImGuiViewPort, ImVec2 imGuiCenterPos)
 	}
 	if (previousHDRState != nowHDRState)
 	{
-		m_needResetHDR = true;
+		m_needResetInterfaces = true;
 	}
 	if (previousGUIState != nowGUIState)
 	{
-		m_needResetGUI = true;
+		m_needResetInterfaces = true;
 	}
 
 	ImGui::End();
-}
-
-void Podo::UpdateCaption()
-{
-#ifdef _DEBUG
-	static Timer worldTimerCaption;
-
-	worldTimerCaption.Update();
-
-	//NOTE: SetWindowTextW를 너무 자주 호출하면 시스템 부하로 인해 윈도우 전체가 먹통이 되니 반복에 텀을 주자
-	if (worldTimerCaption.GetTimeMilli() > 100.0f)
-	{
-
-		int fps = (m_worldTimerFrame.GetTimeMilli() != 0) ? static_cast<int>(1000 / m_worldTimerFrame.GetTimeMilli()) : 0;
-
-		wstring caption = std::format(
-			L"{} (월드 경과 시간: {:06.1F} s / 월드 프레임 시간: {:0.4f} ms / FPS: {:3d} fps / 마우스 위치: {:04d} p, {:04d} p / 스크롤 각도: {:04d} unit)",
-			m_pAppName,
-			m_worldTimerTotal.GetTimeMilli() / 1000,
-			m_worldTimerFrame.GetTimeMilli(),
-			(fps > 999) ? 999 : fps,
-			m_inputMousePositionClient.x,
-			m_inputMousePositionClient.y,
-			m_inputScrollDelta
-		);
-
-		SetWindowTextW(m_hWnd, caption.c_str());
-
-		worldTimerCaption.Mark();
-	}
-#endif
 }

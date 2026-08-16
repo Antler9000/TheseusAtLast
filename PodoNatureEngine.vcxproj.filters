@@ -101,12 +101,6 @@
     <ClCompile Include="Code\Source\main.cpp">
       <Filter>Code\Source</Filter>
     </ClCompile>
-    <ClCompile Include="Code\Source\PodoInit.cpp">
-      <Filter>Code\Source</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\Source\PodoInput.cpp">
-      <Filter>Code\Source</Filter>
-    </ClCompile>
     <ClCompile Include="Code\Source\PodoUpdate.cpp">
       <Filter>Code\Source</Filter>
     </ClCompile>
@@ -120,6 +114,9 @@
       <Filter>Code\Source</Filter>
     </ClCompile>
     <ClCompile Include="Code\Source\PodoUtil.cpp">
+      <Filter>Code\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Source\PodoInput.cpp">
       <Filter>Code\Source</Filter>
     </ClCompile>
   </ItemGroup>
