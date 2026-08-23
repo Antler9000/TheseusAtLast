@@ -4,6 +4,7 @@
 #include "State.h"
 #include "Option.h"
 #include "Timer.h"
+#include "Asset.h"
 #include "Alloc.h"
 #include "imgui.h"
 #include <d3dx12_root_signature.h>
@@ -15,6 +16,7 @@
 #include <dxgiformat.h>
 #include <wrl/client.h>
 #include <windows.h>
+#include <unordered_map>
 #include <string>
 #include <fstream>
 
@@ -168,98 +170,95 @@ private:
 	template <typename Interface>
 	using ComPtr = Microsoft::WRL::ComPtr<Interface>;
 
-	ComPtr<IDXGIFactory6>				m_dxgiFactory;													//NOTE: (기본) 성능순 어댑터 획득
-	ComPtr<IDXGIAdapter3>				m_dxgiAdapter;													//NOTE: (기본) 자원의 메모리 상주성 관리
-	ComPtr<IDXGIOutput>					m_dxgiOutput;
-	ComPtr<IDXGIOutput6>				m_dxgiOutput6;													//NOTE: (옵션) HDR 모니터 정보 획득
-	DXGI_OUTPUT_DESC1					m_dxgiOutputDesc									= {};		//NOTE: (옵션) HDR 모니터 정보 획득
+	ComPtr<IDXGIFactory6>					m_dxgiFactory;													//NOTE: (기본) 성능순 어댑터 획득
+	ComPtr<IDXGIAdapter3>					m_dxgiAdapter;													//NOTE: (기본) 자원의 메모리 상주성 관리
+	ComPtr<IDXGIOutput>						m_dxgiOutput;
+	ComPtr<IDXGIOutput6>					m_dxgiOutput6;													//NOTE: (옵션) HDR 모니터 정보 획득
+	DXGI_OUTPUT_DESC1						m_dxgiOutputDesc									= {};		//NOTE: (옵션) HDR 모니터 정보 획득
 	
-	ComPtr<ID3D12Device>				m_device;
-	ComPtr<ID3D12Device2>				m_device2;														//NOTE: (옵션) 메시 셰이더
-	ComPtr<ID3D12Device5>				m_device5;														//NOTE: (옵션) 레이 트레이싱
+	ComPtr<ID3D12Device>					m_device;
+	ComPtr<ID3D12Device2>					m_device2;														//NOTE: (옵션) 메시 셰이더
+	ComPtr<ID3D12Device5>					m_device5;														//NOTE: (옵션) 레이 트레이싱
 	
-	ComPtr<ID3D12Fence>					m_fence;
-	UINT64								m_fenceCurrent										= 0;
-	HANDLE								m_fenceEvent										= nullptr;
+	ComPtr<ID3D12Fence>						m_fence;
+	UINT64									m_fenceCurrent										= 0;
+	HANDLE									m_fenceEvent										= nullptr;
 	
-	ComPtr<ID3D12CommandQueue>			m_commandQueue;
-	ComPtr<ID3D12CommandAllocator>		m_commandAllocator;
-	ComPtr<ID3D12GraphicsCommandList>	m_commandList;
-	ComPtr<ID3D12GraphicsCommandList4>	m_commandList4;													//NOTE: (옵션) 레이 트레이싱
-	ComPtr<ID3D12GraphicsCommandList6>	m_commandList6;													//NOTE: (옵션) 메시 셰이더 생성
+	ComPtr<ID3D12CommandQueue>				m_commandQueue;
+	ComPtr<ID3D12CommandAllocator>			m_commandAllocator;
+	ComPtr<ID3D12GraphicsCommandList>		m_commandList;
+	ComPtr<ID3D12GraphicsCommandList4>		m_commandList4;													//NOTE: (옵션) 레이 트레이싱
+	ComPtr<ID3D12GraphicsCommandList6>		m_commandList6;													//NOTE: (옵션) 메시 셰이더 생성
 	
-	ComPtr<IDXGISwapChain3>				m_screenSwapChain;												//NOTE: (기본) 백 버퍼 인덱스 추적
-	ComPtr<ID3D12Resource>				m_screenBackBuffers[m_screenBackBufferCount];
-	UINT								m_screenBackBufferIndex								= 0;
-	UINT								m_screenBackBufferWidth								= 0;
-	UINT								m_screenBackBufferHeight							= 0;
-	float								m_screenBackBufferAspectRatio						= 0.0f;
-	D3D12_VIEWPORT						m_screenViewPort									= {};
-	D3D12_RECT							m_screenScissorRectangle							= {};
-	ComPtr<ID3D12Resource>				m_screenDepthStencilBuffer;
+	ComPtr<IDXGISwapChain3>					m_screenSwapChain;												//NOTE: (기본) 백 버퍼 인덱스 추적
+	ComPtr<ID3D12Resource>					m_screenBackBuffers[m_screenBackBufferCount];
+	UINT									m_screenBackBufferIndex								= 0;
+	UINT									m_screenBackBufferWidth								= 0;
+	UINT									m_screenBackBufferHeight							= 0;
+	float									m_screenBackBufferAspectRatio						= 0.0f;
+	D3D12_VIEWPORT							m_screenViewPort									= {};
+	D3D12_RECT								m_screenScissorRectangle							= {};
+	ComPtr<ID3D12Resource>					m_screenDepthStencilBuffer;
 	
-	UINT								m_descriptorHeapRTVIncrementSize					= 0;
-	UINT								m_descriptorHeapDSVIncrementSize					= 0;
-	ComPtr<ID3D12DescriptorHeap>		m_descriptorHeapRTV;
-	ComPtr<ID3D12DescriptorHeap>		m_descriptorHeapDSV;
-	CD3DX12_CPU_DESCRIPTOR_HANDLE		m_descriptorHeapRTVStartHandleCPU;
-	CD3DX12_CPU_DESCRIPTOR_HANDLE		m_descriptorHeapDSVStartHandleCPU;
+	UINT									m_descriptorHeapRTVIncrementSize					= 0;
+	UINT									m_descriptorHeapDSVIncrementSize					= 0;
+	ComPtr<ID3D12DescriptorHeap>			m_descriptorHeapRTV;
+	ComPtr<ID3D12DescriptorHeap>			m_descriptorHeapDSV;
+	CD3DX12_CPU_DESCRIPTOR_HANDLE			m_descriptorHeapRTVStartHandleCPU;
+	CD3DX12_CPU_DESCRIPTOR_HANDLE			m_descriptorHeapDSVStartHandleCPU;
 
-	UINT								m_descriptorHeapCBVSRVUAVIncrementSize				= 0;
-	ComPtr<ID3D12DescriptorHeap>		m_descriptorHeapCBVSRVUAV;
-	CD3DX12_CPU_DESCRIPTOR_HANDLE		m_descriptorHeapCBVSRVUAVStartHandleCPUForGUI;
-	CD3DX12_GPU_DESCRIPTOR_HANDLE		m_descriptorHeapCBVSRVUAVStartHandleGPUForGUI;
-	CD3DX12_CPU_DESCRIPTOR_HANDLE		m_descriptorHeapCBVSRVUAVStartHandleCPUForRender;
-	CD3DX12_GPU_DESCRIPTOR_HANDLE		m_descriptorHeapCBVSRVUAVStartHandleGPUForRender;
+	std::unordered_map<std::string, Asset>	m_assets;
 
-	enum RootParameter
-	{
-		OBJECT_CONSTANT,
-		ROOT_PARAMETER_COUNT
-	};
-	ComPtr<ID3D12RootSignature>			m_basicRootSignature;
-	ComPtr<ID3D12PipelineState>			m_basicPipelineStateObject;
+	UINT									m_descriptorHeapCBVSRVUAVIncrementSize				= 0;
+	ComPtr<ID3D12DescriptorHeap>			m_descriptorHeapCBVSRVUAV;
+	CD3DX12_CPU_DESCRIPTOR_HANDLE			m_descriptorHeapCBVSRVUAVStartHandleCPUForGUI;
+	CD3DX12_GPU_DESCRIPTOR_HANDLE			m_descriptorHeapCBVSRVUAVStartHandleGPUForGUI;
+	CD3DX12_CPU_DESCRIPTOR_HANDLE			m_descriptorHeapCBVSRVUAVStartHandleCPUForRender;
+	CD3DX12_GPU_DESCRIPTOR_HANDLE			m_descriptorHeapCBVSRVUAVStartHandleGPUForRender;
 
-	bool								m_imGuiInitialized									= false;
-	ImVec2								m_imGuiSpacingSize									= ImVec2(0.0f, 10.0f);
-	ImVec2								m_imGuiSmallButtonSize								= ImVec2(120.0f, 40.0f);
-	ImVec2								m_imGuiMediumButtonSize								= ImVec2(240.0f, 40.0f);
-	ImVec2								m_imGuiLargeButtonSize								= ImVec2(360.0f, 40.0f);
+	ComPtr<ID3D12RootSignature>				m_basicRootSignature;
+	ComPtr<ID3D12PipelineState>				m_basicPipelineStateObject;
 
-	bool								NeedReset() const									{ return m_needResetScreenMode; }
-	bool								m_needResetScreenMode								= false;
-	bool								NeedResetInterfaces() const							{ return (m_dxgiFactory->IsCurrent() == FALSE) || m_needResetInterfaces; }
-	bool								m_needResetInterfaces								= false;
+	bool									m_imGuiInitialized									= false;
+	ImVec2									m_imGuiSpacingSize									= ImVec2(0.0f, 10.0f);
+	ImVec2									m_imGuiSmallButtonSize								= ImVec2(120.0f, 40.0f);
+	ImVec2									m_imGuiMediumButtonSize								= ImVec2(240.0f, 40.0f);
+	ImVec2									m_imGuiLargeButtonSize								= ImVec2(360.0f, 40.0f);
 
-	bool								IsUpdateStopped() const								{ return (IsWorldStopped() && IsRenderStopped()); }
-	bool								IsWorldStopped() const								{ return (m_engineStatePresent != ENGINE_STATE_RUNTIME); }
-	bool								IsRenderStopped() const								{ return m_isWindowResizing || m_isWindowMoving || m_isWindowMinimized; }
-	bool								m_isWindowResizing									= false;
-	bool								m_isWindowMoving									= false;
-	bool								m_isWindowMinimized									= false;
+	bool									NeedReset() const									{ return m_needResetScreenMode; }
+	bool									m_needResetScreenMode								= false;
+	bool									NeedResetInterfaces() const							{ return (m_dxgiFactory->IsCurrent() == FALSE) || m_needResetInterfaces; }
+	bool									m_needResetInterfaces								= false;
 
-	void								WorldTimersReset()									{ m_worldTimerTotal.Reset(); m_worldTimerFrame.Reset(); }
-	void								WorldTimersStop()									{ m_worldTimerTotal.Stop(); m_worldTimerFrame.Stop(); }
-	void								WorldTimersStart()									{ m_worldTimerTotal.Start(); m_worldTimerFrame.Start(); }
-	Timer								m_worldTimerTotal;
-	Timer								m_worldTimerFrame;
+	bool									IsUpdateStopped() const								{ return (IsWorldStopped() && IsRenderStopped()); }
+	bool									IsWorldStopped() const								{ return (m_engineStatePresent != ENGINE_STATE_RUNTIME); }
+	bool									IsRenderStopped() const								{ return m_isWindowResizing || m_isWindowMoving || m_isWindowMinimized; }
+	bool									m_isWindowResizing									= false;
+	bool									m_isWindowMoving									= false;
+	bool									m_isWindowMinimized									= false;
 
-	EngineState							m_engineStatePresent								= ENGINE_STATE_LOADING;
+	void									WorldTimersReset()									{ m_worldTimerTotal.Reset(); m_worldTimerFrame.Reset(); }
+	void									WorldTimersStop()									{ m_worldTimerTotal.Stop(); m_worldTimerFrame.Stop(); }
+	void									WorldTimersStart()									{ m_worldTimerTotal.Start(); m_worldTimerFrame.Start(); }
+	Timer									m_worldTimerTotal;
+	Timer									m_worldTimerFrame;
 
-	void								InputReset()										{ m_inputMousePositionClient = { 0,0 }; m_inputMouseClickedPositionClient = { 0, 0 }; m_inputIsClicked = false; m_inputScrollDelta = 0; }
-	POINT								m_inputMousePositionClient							= { 0, 0 };
-	POINT								m_inputMouseClickedPositionClient					= { 0, 0 };
-	bool								m_inputIsClicked									= false;
-	int									m_inputScrollDelta									= 0;
+	EngineState								m_engineStatePresent								= ENGINE_STATE_LOADING;
+
+	void									InputReset()										{ m_inputMousePositionClient = { 0,0 }; m_inputMouseClickedPositionClient = { 0, 0 }; m_inputIsClicked = false; m_inputScrollDelta = 0; }
+	POINT									m_inputMousePositionClient							= { 0, 0 };
+	POINT									m_inputMouseClickedPositionClient					= { 0, 0 };
+	bool									m_inputIsClicked									= false;
+	int										m_inputScrollDelta									= 0;
 
 private:
 
-	OptionFullScreen					m_optionFullScreen;
-	OptionWindowSave					m_optionWindowSave;
-	OptionVSync							m_optionVSync;
-	OptionTearing						m_optionTearing;
-	OptionHDR							m_optionHDR;
-	OptionRayTracing					m_optionRayTracing;
-	OptionMeshShader					m_optionMeshShader;
-	OptionGUI							m_optionGUI;
+	OptionFullScreen	m_optionFullScreen;
+	OptionWindowSave	m_optionWindowSave;
+	OptionVSync			m_optionVSync;
+	OptionTearing		m_optionTearing;
+	OptionHDR			m_optionHDR;
+	OptionRayTracing	m_optionRayTracing;
+	OptionMeshShader	m_optionMeshShader;
+	OptionGUI			m_optionGUI;
 };

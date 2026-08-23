@@ -1,0 +1,6 @@
+enum RootParameter
+{
+	OBJECT_CONSTANT,
+
+	ROOT_PARAMETER_COUNT
+};

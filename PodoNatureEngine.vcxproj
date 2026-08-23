@@ -28,7 +28,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Code\Header\Asset.h" />
     <ClInclude Include="Code\Header\BaseApp.h" />
+    <ClInclude Include="Code\Header\Root.h" />
     <ClInclude Include="Code\Header\State.h" />
     <ClInclude Include="Code\Header\Option.h" />
     <ClInclude Include="Code\Header\Podo.h" />

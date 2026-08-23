@@ -1,5 +1,7 @@
 ﻿#define NOMINMAX
 #include "Podo.h"
+#include "root.h"
+#include "Asset.h"
 #include "Option.h"
 #include "Alloc.h"
 #include "Debug.h"
@@ -12,6 +14,8 @@
 #include <d3dx12_core.h>
 #include <d3d12.h>
 #include <d3dcommon.h>
+#include <ResourceUploadBatch.h>
+#include <BufferHelpers.h>
 #include <d3dcompiler.h>
 #include <dxgi1_6.h>
 #include <dxgi1_5.h>
@@ -25,8 +29,10 @@
 #include <windows.h>
 #include <algorithm>
 #include <string>
+#include <utility>
 #include <cstdlib>
 #include <climits>
+#include <cstdint>
 #include <stdexcept>
 
 using Microsoft::WRL::ComPtr;
@@ -697,7 +703,79 @@ void Podo::ResetDSV()
 
 void Podo::ResetAssets()
 {
+	m_assets.clear();
 
+	Asset box;
+
+	box.vertices =
+	{
+		{DirectX::XMFLOAT3{-0.5f, -0.5f, -0.5f}},
+		{DirectX::XMFLOAT3{-0.5f, +0.5f, -0.5f}},
+		{DirectX::XMFLOAT3{+0.5f, +0.5f, -0.5f}},
+		{DirectX::XMFLOAT3{+0.5f, -0.5f, -0.5f}},
+
+		{DirectX::XMFLOAT3{-0.5f, -0.5f, +0.5f}},
+		{DirectX::XMFLOAT3{-0.5f, +0.5f, +0.5f}},
+		{DirectX::XMFLOAT3{+0.5f, +0.5f, +0.5f}},
+		{DirectX::XMFLOAT3{+0.5f, -0.5f, +0.5f}}
+	};
+
+	box.indices =
+	{
+		0, 1, 2,  0, 2, 3,
+		4, 6, 5,  4, 7, 6,
+		4, 5, 1,  4, 1, 0,
+		3, 2, 6,  3, 6, 7,
+		1, 5, 6,  1, 6, 2,
+		4, 0, 3,  4, 3, 7
+	};
+
+	m_assets.emplace("Box", std::move(box));
+
+	DirectX::ResourceUploadBatch resourceUpload(m_device.Get());
+	resourceUpload.Begin();
+	{
+		ThrowIfFailed
+		(
+			DirectX::CreateStaticBuffer
+			(
+				m_device.Get(),
+				resourceUpload,
+				m_assets["Box"].vertices,
+				D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER,
+				m_assets["Box"].vertexBuffer.ReleaseAndGetAddressOf()
+			)
+		);
+
+		ThrowIfFailed
+		(
+			DirectX::CreateStaticBuffer
+			(
+				m_device.Get(),
+				resourceUpload,
+				m_assets["Box"].indices,
+				D3D12_RESOURCE_STATE_INDEX_BUFFER,
+				m_assets["Box"].indexBuffer.ReleaseAndGetAddressOf()
+			)
+		);
+	}
+	auto uploadFinished = resourceUpload.End(m_commandQueue.Get());
+
+	m_assets["Box"].vertexBufferView =
+	{
+		m_assets["Box"].vertexBuffer->GetGPUVirtualAddress(),
+		static_cast<UINT>(m_assets["Box"].vertices.size() * sizeof(Vertex)),
+		sizeof(Vertex)
+	};
+
+	m_assets["Box"].indexBufferView =
+	{
+		m_assets["Box"].indexBuffer->GetGPUVirtualAddress(),
+		static_cast<UINT>(m_assets["Box"].indices.size() * sizeof(uint32_t)),
+		DXGI_FORMAT_R32_UINT
+	};
+
+	uploadFinished.wait();
 }
 
 void Podo::ResetObjects()
