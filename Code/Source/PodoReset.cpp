@@ -3,19 +3,18 @@
 #include "root.h"
 #include "Asset.h"
 #include "Option.h"
+#include "Object.h"
 #include "Alloc.h"
 #include "Debug.h"
 #include "imgui.h"
 #include "imgui_impl_win32.h"
 #include "imgui_impl_dx12.h"
-#include <d3d12sdklayers.h>
 #include <d3dx12_root_signature.h>
 #include <d3dx12_default.h>
 #include <d3dx12_core.h>
 #include <d3d12.h>
 #include <d3dcommon.h>
 #include <ResourceUploadBatch.h>
-#include <BufferHelpers.h>
 #include <d3dcompiler.h>
 #include <dxgi1_6.h>
 #include <dxgi1_5.h>
@@ -25,6 +24,7 @@
 #include <dxgi.h>
 #include <dxgicommon.h>
 #include <dxgiformat.h>
+#include <DirectXMath.h>
 #include <wrl/client.h>
 #include <windows.h>
 #include <algorithm>
@@ -32,7 +32,6 @@
 #include <utility>
 #include <cstdlib>
 #include <climits>
-#include <cstdint>
 #include <stdexcept>
 
 using Microsoft::WRL::ComPtr;
@@ -748,16 +747,31 @@ void Podo::ResetObjects()
 {
 	m_objects.clear();
 
-	Object boxObject;
-	boxObject.asset = &m_assets.at("Box");
+	{
+		Object boxObject;
+		boxObject.asset = &m_assets.at("Box");
 
-	DirectX::XMVECTOR position	= DirectX::XMVectorSet(0.0f, 0.0f, 3.0f, 1.0f);
-	DirectX::XMVECTOR direction	= DirectX::XMVectorSet(1.0f, 0.0f, 1.0f, 0.0f);
-	DirectX::XMVECTOR up		= DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-	boxObject.SetWorldSpace(position, direction, up);
-	boxObject.CreateConstantBuffer(m_device.Get());
+		DirectX::XMVECTOR position	= DirectX::XMVectorSet(0.0f, 0.0f, 3.0f, 1.0f);
+		DirectX::XMVECTOR direction = DirectX::XMVectorSet(1.0f, 0.0f, 1.0f, 0.0f);
+		DirectX::XMVECTOR up		= DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+		boxObject.SetWorldSpace(position, direction, up);
+		boxObject.CreateConstantBuffer(m_device.Get());
 
-	m_objects["BoxObject"] = std::move(boxObject);
+		m_objects["HorizontalBoxObject"] = std::move(boxObject);
+	}
+
+	{
+		Object verticalBoxObject;
+		verticalBoxObject.asset = &m_assets.at("Box");
+
+		DirectX::XMVECTOR position	= DirectX::XMVectorSet(2.0f, 0.0f, 5.0f, 1.0f);
+		DirectX::XMVECTOR direction	= DirectX::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
+		DirectX::XMVECTOR up		= DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+		verticalBoxObject.SetWorldSpace(position, direction, up);
+		verticalBoxObject.CreateConstantBuffer(m_device.Get());
+
+		m_objects["VerticalBoxObject"] = std::move(verticalBoxObject);
+	}
 }
 
 void Podo::ResetCBVSRVUAV()
@@ -768,8 +782,8 @@ void Podo::ResetCBVSRVUAV()
 	for (auto& [name, object] : m_objects)
 	{
 		D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
-		cbvDesc.BufferLocation = object.constantBuffer->GetGPUVirtualAddress();
-		cbvDesc.SizeInBytes = static_cast<UINT>(object.constantBuffer->GetDesc().Width);
+		cbvDesc.BufferLocation	= object.constantBuffer->GetGPUVirtualAddress();
+		cbvDesc.SizeInBytes		= static_cast<UINT>(object.constantBuffer->GetDesc().Width);
 
 		m_device->CreateConstantBufferView(&cbvDesc, cpuHandle);
 

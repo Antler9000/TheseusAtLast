@@ -1,9 +1,13 @@
 #pragma once
+#define NOMINMAX
 #include "Asset.h"
+#include "Debug.h"
 #include <d3d12.h>
-#include <d3dx12.h>
+#include <d3dx12_core.h>
 #include <DirectXMath.h>
 #include <wrl/client.h>
+#include <windows.h>
+#include <string.h>
 
 struct Object
 {
@@ -40,10 +44,9 @@ struct Object
 
 	void CreateConstantBuffer(ID3D12Device* device)
 	{
-		constexpr UINT constantBufferSize = (sizeof(DirectX::XMFLOAT4X4) + 255) & ~255;
-
-		D3D12_HEAP_PROPERTIES heapProperties	= CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
-		D3D12_RESOURCE_DESC resourceDesc		= CD3DX12_RESOURCE_DESC::Buffer(constantBufferSize);
+		constexpr UINT			constantBufferSize	= (sizeof(DirectX::XMFLOAT4X4) + 255) & ~255;
+		D3D12_HEAP_PROPERTIES	heapProperties		= CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+		D3D12_RESOURCE_DESC		resourceDesc		= CD3DX12_RESOURCE_DESC::Buffer(constantBufferSize);
 
 		ThrowIfFailed
 		(
@@ -61,11 +64,12 @@ struct Object
 
 	void XM_CALLCONV UpdateWorldViewProjection(DirectX::FXMMATRIX viewProjectionMatrix)
 	{
-		DirectX::XMMATRIX worldMatrixXM = DirectX::XMLoadFloat4x4(&worldMatrix);
-		DirectX::XMMATRIX transposedWorldViewProjectionMatrix = DirectX::XMMatrixTranspose(worldMatrixXM * viewProjectionMatrix);
+		DirectX::XMMATRIX worldMatrixXM	= DirectX::XMLoadFloat4x4(&worldMatrix);
+
+		DirectX::XMMATRIX transposedWorldViewProjectionMatrixXM	= DirectX::XMMatrixTranspose(worldMatrixXM * viewProjectionMatrix);
 
 		DirectX::XMFLOAT4X4 constantData;
-		DirectX::XMStoreFloat4x4(&constantData, transposedWorldViewProjectionMatrix);
+		DirectX::XMStoreFloat4x4(&constantData, transposedWorldViewProjectionMatrixXM);
 
 		void* mappedData = nullptr;
 		D3D12_RANGE readRange = { 0, 0 };

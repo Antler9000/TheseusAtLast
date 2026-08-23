@@ -1,9 +1,12 @@
 #pragma once
+#include "Debug.h"
 #include <d3d12.h>
+#include <dxgiformat.h>
 #include <wrl/client.h>
 #include <DirectXMath.h>
 #include <ResourceUploadBatch.h>
 #include <BufferHelpers.h>
+#include <windows.h>
 #include <vector>
 #include <cstdint>
 

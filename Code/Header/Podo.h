@@ -208,8 +208,8 @@ private:
 	CD3DX12_CPU_DESCRIPTOR_HANDLE			m_descriptorHeapRTVStartHandleCPU;
 	CD3DX12_CPU_DESCRIPTOR_HANDLE			m_descriptorHeapDSVStartHandleCPU;
 
-	std::unordered_map<std::string, Object>	m_objects;
 	std::unordered_map<std::string, Asset>	m_assets;
+	std::unordered_map<std::string, Object>	m_objects;
 
 	UINT									m_descriptorHeapCBVSRVUAVIncrementSize				= 0;
 	ComPtr<ID3D12DescriptorHeap>			m_descriptorHeapCBVSRVUAV;
