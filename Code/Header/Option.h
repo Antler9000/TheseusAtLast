@@ -42,10 +42,10 @@ struct OptionFullScreen
 
 struct OptionWindowSave
 {
-	LONG posX = 0;
-	LONG posY = 0;
-	LONG width = 1600;
-	LONG height = 900;
+	LONG posX	= 0;
+	LONG posY	= 0;
+	LONG width	= 1600;
+	LONG height	= 900;
 
 	bool IsActive() const
 	{
@@ -59,17 +59,17 @@ struct OptionWindowSave
 
 	void SetWindowRect(RECT setting)
 	{
-		LONG newPosX = setting.left;
-		LONG newPosY = setting.top;
-		LONG newWidth = setting.right - setting.left;
-		LONG newHeight = setting.bottom - setting.top;
+		LONG newPosX	= setting.left;
+		LONG newPosY	= setting.top;
+		LONG newWidth	= setting.right - setting.left;
+		LONG newHeight	= setting.bottom - setting.top;
 
 		if ((10 < newWidth) && (10 < newHeight))
 		{
-			posX = newPosX;
-			posY = newPosY;
-			width = newWidth;
-			height = newHeight;
+			posX	= newPosX;
+			posY	= newPosY;
+			width	= newWidth;
+			height	= newHeight;
 		}
 	}
 
@@ -177,10 +177,10 @@ struct OptionTearing
 
 struct OptionHDR
 {
-	bool outputSupported = false;
-	bool formatSupported = false;
-	bool colorSpaceSupported = false;
-	bool userEnabled = false;
+	bool outputSupported		= false;
+	bool formatSupported		= false;
+	bool colorSpaceSupported	= false;
+	bool userEnabled			= false;
 
 	bool IsActive() const
 	{

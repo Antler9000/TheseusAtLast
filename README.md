@@ -3,61 +3,60 @@ HLSL, D3D12, Win32, C++을 이용하여 구현 중인 실시간 3D 엔진입니�
 
 사용자가 가상 자연환경을 구성할 수 있도록 하는 것을 목표로 하고 있습니다.
 
-현재 실행 중의 인터페이스 초기화 과정을 최적화하고 있습니다.
+현재 기초적인 렌더링 기능을 구현하고 있습니다.
 
 <br>
 
 
 
 
-<!----------------------------------------------------------------------------------------------------------------------------------------------->
+<!---------------------------------------------------------------------------------------------------------------------------------------------->
 ## 목차
 - [1. 스크린샷](#1-스크린샷)
 - [2. 실행 방법](#2-실행-방법)
 - [3. 주요 기능](#3-주요-기능)
 - [4. 성능 측정](#4-성능-측정)
-- [5. 구현 구조](#5-구현-구조)
-- [6. 구현 예정](#6-구현-예정)
-- [7. 구현 제외](#7-구현-제외)
-- [8. 외부 항목](#8-외부-항목)
-- [9. 참고 자료](#9-참고-자료)
+- [5. 구현 예정](#5-구현-예정)
+- [6. 구현 제외](#6-구현-제외)
+- [7. 외부 항목](#7-외부-항목)
+- [8. 구현 참고](#8-구현-참고)
 
 <br>
 
 
 
 
-<!----------------------------------------------------------------------------------------------------------------------------------------------->
+<!---------------------------------------------------------------------------------------------------------------------------------------------->
 ## 1. 스크린샷
 [로딩]
-![로딩 스크린샷](docs/screenshot1.png)
+![로딩 스크린샷](Docs/screenshot_1.png)
 
 [실행]
-![실행 스크린샷](docs/screenshot2.png)
+![실행 스크린샷](Docs/screenshot_2.png)
 
 [메뉴]
-![메뉴 스크린샷](docs/screenshot3.png)
+![메뉴 스크린샷](Docs/screenshot_3.png)
 
 <br>
 
 
 
 
-<!----------------------------------------------------------------------------------------------------------------------------------------------->
+<!---------------------------------------------------------------------------------------------------------------------------------------------->
 ## 2. 실행 방법
 ### 2.1. 최소 사양
-|구분         |최소 사양                  |
-|-------------|---------------------------|
-|운영체제     |Windows 10 버전 1803 이상  |
-|CPU          |미정                       |
-|GPU 피처 레벨|D3D_FEATURE_LEVEL_12_0 이상|
-|RAM          |미정                       |
-|저장 장치    |미정                       |
+|구분           |최소 사양                            |
+|---------------|-------------------------------------|
+|운영체제       |Windows 10 22H2 64-bit 이상          |
+|CPU            |미정                                 |
+|GPU 피처 레벨  |D3D_FEATURE_LEVEL_12_0 이상          |
+|GPU 셰이더 모델|Shader Model 6.6 이상                |
+|RAM            |미정                                 |
+|저장 장치      |미정                                 |
 
+- 추후 바인드리스 서술자 힙 접근을 사용할 예정이기 때문에 Shader Model 6.6을 최소 사양으로 정하였습니다. 운영체제는 지원 범위를 단순화하기 위해 Windows 10의 마지막 기능 업데이트인 22H2를 최소 지원 버전으로 정하였습니다.
 
-- HDR 제시, 레이 트레이싱, 메시 셰이더 등의 옵션은 추가 사양이 필요할 수 있습니다.
-
-- 실행 환경이 해당 옵션을 지원하지 않는다면 체크박스가 비활성화됩니다.
+- HDR 제시, 레이 트레이싱, 메시 셰이더 등의 옵션은 추가 사양이 필요할 수 있습니다. 실행 환경이 해당 옵션을 지원하지 않는다면 체크박스가 비활성화됩니다.
 
 <br>
 
@@ -100,7 +99,7 @@ HLSL, D3D12, Win32, C++을 이용하여 구현 중인 실시간 3D 엔진입니�
 
 
 
-<!----------------------------------------------------------------------------------------------------------------------------------------------->
+<!---------------------------------------------------------------------------------------------------------------------------------------------->
 ## 3. 주요 기능
 ### 3.1. 조형 기능
 아직 구현하지 않았습니다.
@@ -121,10 +120,10 @@ HLSL, D3D12, Win32, C++을 이용하여 구현 중인 실시간 3D 엔진입니�
 ### 3.3. 조작 기능
 |입력                         |기능                     |
 |-----------------------------|-------------------------|
-|마우스 좌클릭(미구현)        |월드 조작                |
-|마우스 우클릭 + 이동(미구현) |시야 회전                |
-|마우스 휠(미구현)            |시야 앞뒤 이동           |
-|키보드 WASD(미구현)          |시야 이동                |
+|마우스 좌클릭                |월드 조작(미구현)        |
+|마우스 우클릭 + 이동         |시야 회전(미구현)        |
+|마우스 휠                    |시야 앞뒤 이동(미구현)   |
+|키보드 WASD                  |시야 이동(미구현)        |
 |키보드 ESC                   |실행<->메뉴 간 상태 전환 |
 |키보드 ALT+ENTER             |창 모드 전환             |
 |키보드 ALT+F4                |종료                     |
@@ -142,7 +141,7 @@ HLSL, D3D12, Win32, C++을 이용하여 구현 중인 실시간 3D 엔진입니�
 |창 모드                |창 모드 or 테두리 없는 창 모드               |
 |VSync                  |Off or On                                    |
 |Tearing                |피처 지원 여부와 VSync 여부에 따라 자동 적용 |
-|HDR(미구현)            |Off or On                                    |
+|HDR(일부구현)          |Off or On                                    |
 |레이 트레이싱(미구현)  |Off or On                                    |
 |메시 셰이더(미구현)    |Off or On                                    |
 |GUI 크기               |50% or 75% or 100% or 125% or 150%           |
@@ -154,7 +153,7 @@ HLSL, D3D12, Win32, C++을 이용하여 구현 중인 실시간 3D 엔진입니�
 
 
 
-<!----------------------------------------------------------------------------------------------------------------------------------------------->
+<!---------------------------------------------------------------------------------------------------------------------------------------------->
 ## 4. 성능 측정
 ### 4.1. 측정 환경
 |환경 요소          |세부 정보                                                        |
@@ -191,23 +190,23 @@ Metrics 값을 통해 각 구간의 소요 시간을 확인합니다.
 
 ### 4.3. 측정 결과
 [VSync Off]
-|구분 |측정 구간                                                                |평균 소요 시간 |P95 소요 시간|
-|-----|-------------------------------------------------------------------------|--------------:|------------:|
-|CPU  |프레임 시간                                                              |450,894 ns     |             |
-|     |├─논-렌더 로직                                                           |283 ns         |             |
-|     |└─ 렌더 로직                                                             |450,397 ns     |             |
-|     |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ 커맨드 리스트 초기화  |114,628 ns     |             |
-|     |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ 자원 바인딩           |9,368 ns       |             |
-|     |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ 씬 그리기             |320 ns         |             |
-|     |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ GUI 그리기            |13,990 ns      |             |
-|     |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ 자원 언바인딩         |1,638 ns       |             |
-|     |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ 커맨드 리스트 제출    |73,924 ns      |             |
-|     |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─ 제시                  |235,626 ns     |             |
-|GPU  |프레임 시간                                                              |39,156 ns      |             |
-|     |├─ 자원 바인딩                                                           |38,322 ns      |             |
-|     |├─ 씬 그리기                                                             |9 ns           |             |
-|     |├─ GUI 그리기                                                            |763 ns         |             |
-|     |└─ 자원 언바인딩                                                         |12 ns          |             |
+|구분 |측정 구간                                                                |평균 소요 시간 |
+|-----|-------------------------------------------------------------------------|--------------:|
+|CPU  |프레임 시간                                                              |450,894 ns     |
+|     |├─논-렌더 로직                                                           |283 ns         |
+|     |└─ 렌더 로직                                                             |450,397 ns     |
+|     |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ 커맨드 리스트 초기화  |114,628 ns     |
+|     |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ 자원 바인딩           |9,368 ns       |
+|     |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ 씬 그리기             |320 ns         |
+|     |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ GUI 그리기            |13,990 ns      |
+|     |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ 자원 언바인딩         |1,638 ns       |
+|     |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ 커맨드 리스트 제출    |73,924 ns      |
+|     |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─ 제시                  |235,626 ns     |
+|GPU  |프레임 시간                                                              |39,156 ns      |
+|     |├─ 자원 바인딩                                                           |38,322 ns      |
+|     |├─ 씬 그리기                                                             |9 ns           |
+|     |├─ GUI 그리기                                                            |763 ns         |
+|     |└─ 자원 언바인딩                                                         |12 ns          |
 
 - 총 캡처 시간: 9,839.76 ms
 
@@ -218,23 +217,23 @@ Metrics 값을 통해 각 구간의 소요 시간을 확인합니다.
 <br>
 
 [VSync On]  
-|구분 |측정 구간                                                                |평균 소요 시간 |P95 소요 시간|
-|-----|-------------------------------------------------------------------------|--------------:|------------:|
-|CPU  |프레임 시간                                                              |4,161,893 ns   |             |
-|     |├─논-렌더 로직                                                           |702 ns         |             |
-|     |└─ 렌더 로직                                                             |4,160,713 ns   |             |
-|     |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ 커맨드 리스트 초기화  |3,573,808 ns   |             |
-|     |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ 자원 바인딩           |24,925 ns      |             |
-|     |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ 씬 그리기             |646 ns         |             |
-|     |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ GUI 그리기            |35,617 ns      |             |
-|     |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ 자원 언바인딩         |3,192 ns       |             |
-|     |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ 커맨드 리스트 제출    |153,068 ns     |             |
-|     |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─ 제시                  |368,147 ns     |             |
-|GPU  |프레임 시간                                                              |192,746 ns     |             |
-|     |├─ 자원 바인딩                                                           |190,587 ns     |             |
-|     |├─ 씬 그리기                                                             |7 ns           |             |
-|     |├─ GUI 그리기                                                            |2,083 ns       |             |
-|     |└─ 자원 언바인딩                                                         |10 ns          |             |
+|구분 |측정 구간                                                                |평균 소요 시간 |
+|-----|-------------------------------------------------------------------------|--------------:|
+|CPU  |프레임 시간                                                              |4,161,893 ns   |
+|     |├─논-렌더 로직                                                           |702 ns         |
+|     |└─ 렌더 로직                                                             |4,160,713 ns   |
+|     |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ 커맨드 리스트 초기화  |3,573,808 ns   |
+|     |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ 자원 바인딩           |24,925 ns      |
+|     |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ 씬 그리기             |646 ns         |
+|     |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ GUI 그리기            |35,617 ns      |
+|     |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ 자원 언바인딩         |3,192 ns       |
+|     |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ 커맨드 리스트 제출    |153,068 ns     |
+|     |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─ 제시                  |368,147 ns     |
+|GPU  |프레임 시간                                                              |192,746 ns     |
+|     |├─ 자원 바인딩                                                           |190,587 ns     |
+|     |├─ 씬 그리기                                                             |7 ns           |
+|     |├─ GUI 그리기                                                            |2,083 ns       |
+|     |└─ 자원 언바인딩                                                         |10 ns          |
 
 - 총 캡처 시간: 8,973.71 ms
 
@@ -242,348 +241,40 @@ Metrics 값을 통해 각 구간의 소요 시간을 확인합니다.
 
 - 측정 환경의 모니터 주사율은 240Hz이므로 주기는 $\frac{1}{240\ \mathrm{Hz}} \approx 4.17\ \mathrm{ms}$이고 이는 CPU의 "프레임 시간" 측정값과 거의 맞아떨어집니다.
 
-- 다만 VSync에 직접적인 영향을 받지 않는 연산 시간이 2배로 늘어난 이유는, VSync에 의한 대기로 인해 유휴 시간이 증가하여 운영체제가 더 적은 연산 자원을 애플리케이션에 할당하기 때문으로 추측하고 있습니다.
+- VSync에 직접적인 영향을 받지 않는 연산 시간이 2배로 늘어난 이유는, VSync에 의한 유휴 시간이 증가하며 CPU와 GPU의 스케줄링이나 클럭이 영향을 받았을 가능성을 생각할 수 있으나, 현재 측정만으로는 특정할 수 없습니다.
 
 <br>
 
 
 
 
-<!----------------------------------------------------------------------------------------------------------------------------------------------->
-## 5. 구현 구조
-### 5.1. 폴더
-Frank Luna의 D3D12 입문서의 폴더 구조를 참고하여 다음과 같은 하위 폴더들을 두었습니다 [1].
-
-- `Code`  
-  : 헤더 파일 폴더(= 추가 포함 디렉토리)와 소스 파일 폴더가 위치합니다.
-
-- `External`  
-  : 리포지토리 내부에 직접 포함된 외부 항목이 위치합니다.
-
-- `IntDir`(= 중간 디렉토리)  
-  : 컴파일 결과물이 위치합니다.
-
-- `Model`  
-  : 오브젝트, 애니메이션 파일들이 위치합니다.
-
-- `OutDir`(= 출력 디렉토리)  
-  : 링크 결과물과 런타임이 위치합니다.
-
-- `Shader`  
-  : HLSL 셰이더 파일들이 위치합니다.
-
-- `Texture`  
-  : DDS 텍스처 파일들이 위치합니다.
-
-<br>
-
-
-
-
-### 5.2. 빌드
-본 리포지토리는 Visual Studio의 `.vcxproj`를 통해 빌드 설정을 관리하고 있습니다.
-
-Visual Studio에서 일반적으로 사용되는 응용 프로그램의 빌드 및 실행 방식을 따르고 있습니다.
-| 단계 | 직접 입력 | 직접 입력 대상 | 간접 입력 | 간접 입력 대상 명시 | 간접 입력 대상 경로 명시 | 출력 | 출력 경로 |
-|---|---|---|---|---|---|---|---|
-| 전처리 + 컴파일 | `.cpp` | 프로젝트에 포함된 각 `.cpp` 파일 | `.h`, `.inl` | `#include <xxx.h>`, `#include "xxx.h"`| (프로젝트 속성 > C/C++ > 일반 > 추가 포함 디렉토리 > 편집) | `.obj` | 중간 디렉토리 |
-| 링크 | `.obj` | 컴파일된 `.obj` 파일들 | `.lib` | `#pragma comment(lib, "xxx.lib")` <br> or <br> (프로젝트 속성 > 링커 > 입력 > 추가 종속성 > 편집) | (프로젝트 속성 > 링커 > 일반 > 추가 라이브러리 디렉토리 > 편집) | `.exe` | 출력 디렉토리 |
-| 실행 | `.exe` | 링크된 `.exe` |  `.dll` | 링크 시점에 임포트 라이브러리를 링크 <br> (로드 타임 동적 링킹) <br> or <br> 실행 중 `LoadLibraryA(..)` 함수 사용 <br> (런타임 동적 링킹) [2] | 해당 없음(`.dll`을 `.exe`의 디렉토리에 복사해주는 것이 일반적) | 프로세스 | 해당 없음 |
-
-<br>
-
-D3D12를 위해 사용하는 기본적인 빌드 대상은 다음과 같습니다 [3].
-
-다만 후술할 NuGet 패키지 관리로 인해 파일의 경로와 설정 방법은 아래 표와 다를 수 있습니다.
-| 대상 | 관리 주체 | 내용물 | 목적 | 경로 | 설정 방법 |
-|---|---|---|---|---|---|
-| Windows SDK | Visual Studio Installer | `.h`, `.inl`, `.lib` | 윈도우 앱 빌드에 필요한 헤더, 라이브러리 사용 |`C:\Program Files (x86)\Windows Kits` | 경로는 기본 설정되어 있음, <br> 무엇을 사용할지만 다음처럼 명시하면 됨 <br> `#include <d3d12.h>` <br> `#include <dxgi1_6.h>` <br> `#pragma comment(lib, "dxgi.lib")` <br> `#pragma comment(lib, "D3D12.lib")` <br> ... |
-| D3D12 Runtime | Windows | `.dll` | 응용 프로그램 구동에 필요한 런타임 사용 | `C:\Windows\System32` | 경로는 기본 설정되어 있음, <br> 임포트 라이브러리인 `D3D12.lib`을 통해 로드 타임 동적 링킹이 일어나므로 별도의 런타임 동적 링킹이 필요 없음 |
-| DirectX Headers | Microsoft GitHub Repository | `.h` | `d3dx12*.h` 헬퍼 구조체, 헬퍼 함수 사용 | https://github.com/microsoft/DirectX-Headers | 수동으로 다운로드하여 프로젝트에 포함 |
-
-<br>
-
-본 리포지토리는 앞서 소개한 세팅 방법 대신에 최신 D3D12 관련 헤더, 라이브러리, 런타임을 리포지토리 내부에서 복원하도록 NuGet 패키지 관리를 사용하고 있습니다.
-
-Frank Luna의 D3D12 입문서에서 NuGet을 사용하는 것을 참고하였으며, 다만 해당 도서가 NuGet으로 관리하지 않고 직접 파일을 다운로드하여 포함하던 대상들까지 모두 NuGet으로 복원되도록 확장하였습니다 [1].
-| 대상 | 목적 | 파일 |
-|---|---|---|
-| DirectX 12 Agility SDK | 최신 D3D12 헤더, 런타임 사용 | `.h`, `.dll` |
-| DirectXTK12 | DirectX 12 툴 헤더, 라이브러리 사용 | `.h`, `.inl`, `.lib` |
-| DirectX Shader Compiler (DXC) | HLSL 셰이더 파일 컴파일 | `.h`, `.lib`, `.dll` |
-
-<br>
-
-
-
-
-### 5.3. 생성 및 초기화 로직
-저장된 옵션을 복원하고, 창 크기와 위치를 설정하고, D3D12 및 DXGI와 관련된 여러 COM 인터페이스를 얻고, 기능 지원 여부를 확인하기 위해 아래와 같은 일련의 과정을 수행합니다.
-
-필요 시 초기화 로직이 여러 번 호출될 수 있도록 각 초기화 하위 메서드는 기존에 획득한 인터페이스를 먼저 해제하도록 구현하였습니다.
-
-```cpp
-Podo::Podo(HINSTANCE hInstance, int nCmdShow) : BaseApp(L"Podo Nature Engine", hInstance, nCmdShow)
-{
-  OptionRestore();
-
-  WorldTimersStop();
-
-  Reset();
-}
-
-void Podo::Reset()
-{
-	ResetScreenMode();
-	ResetInterfaces();
-
-  m_needResetScreenMode = false;
-}
-
-void Podo::ResetScreenMode()
-{
-	if (m_optionFullScreen.IsActive() == true)
-	{
-		ResetFullScreenMode();
-	}
-	else
-	{
-		ResetWindowMode();
-	}
-}
-
-void Podo::ResetInterfaces()
-{
-	FlushCommandQueue();
-
-	ResetFactory();
-	ResetAdapterAndOutput();
-	ResetDevice();
-	ResetFence();
-	ResetFenceEvent();
-	ResetCommandQueue();
-	ResetCommandAllocator();
-	ResetCommandList();
-	ResetFormatSupport();
-	ResetHDRSwapChainSupport();
-	ResetSwapChain();
-	ResetBackBufferInfo();
-	ResetViewPort();
-	ResetScissorRectangle();
-	ResetDepthStencilBuffer();
-	ResetDescriptorHeapRTV();
-	ResetDescriptorHeapDSV();
-	ResetDescriptorHeapCBVSRVUAV();
-	ResetRTV();
-	ResetDSV();
-	ResetCBVSRVUAV();
-	ResetImGui();
-
-  m_needResetInterfaces = false;
-}
-```
-<br>
-
-
-
-
-### 5.4. 종료 로직
-다음 실행 시 복원하여 사용할 수 있도록 옵션을 저장합니다.
-
-그리고 오류를 예방하기 위해, GPU에 제출된 명령이 모두 실행된 후 자원과 명령 할당자가 소멸되도록 합니다.
-
-예외가 발생하여 애플리케이션 객체가 소멸되었음에도 객체의 메시지 핸들러가 윈도우 프로시저로 호출되는 경우가 없도록 창을 삭제합니다.
-
-```cpp
-Podo::~Podo()
-{
-  OptionSave();
-
-  FlushCommandQueue();
-  
-  Close();
-}
-
-void Podo::Close()
-{
-	CloseFenceEvent();
-	CloseImGui();
-	CloseWindowOnException();
-}
-```
-<br>
-
-
-
-
-### 5.5. 업데이트 로직
-일반적인 메시지 루프를 통해 애플리케이션의 업데이트 로직을 수행합니다.
-
-메시지 큐에 메시지가 있으면 이를 처리하는 것을 우선합니다.
-
-창의 크기와 위치를 수정하면, 주 모니터를 나타내는 아웃풋 인터페이스를 초기화하거나 스왑 체인의 백 버퍼를 조정할 필요가 있으므로 D3D12 및 DXGI와 관련된 인터페이스를 이어서 초기화하도록 하였습니다.
-
-반대로 창의 크기는 인터페이스들을 초기화하는 로직에 영향을 받지 않고, 오직 애플리케이션의 테두리 없는 창 모드 설정의 변화나 윈도우에 의한 창 크기 제어에만 영향을 받으므로, 두 초기화를 구분하여 필요한 부분만 호출을 요청할 수 있도록 하였습니다.
-
-위의 어느 경우에도 해당하지 않는다면 월드 업데이트나 렌더링과 같은 작업을 수행합니다. 다만 월드 업데이트는 엔진이 메뉴 상태에 있다면 수행되지 않고, 렌더 업데이트는 창 크기나 위치가 변화하는 도중엔 수행되지 않습니다.
-
-이 두 가지 업데이트가 모두 중지되었다면 스레드를 0.1초간 재우는 동작을 반복하여 불필요한 연산을 방지합니다.
-
-```cpp
-int Podo::RunMessageLoop()
-{
-  MSG msg = { };
-
-  while (msg.message != WM_QUIT)
-  {
-    if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE) != FALSE)
-    {
-      TranslateMessage(&msg);
-      DispatchMessage(&msg);
-    }
-    else if (NeedReset() == true)
-    {
-      Reset();
-    }
-    else if (NeedResetInterfaces() == true)
-    {
-      ResetInterfaces();
-    }
-    else
-    {
-      if (IsUpdateStopped() == true)
-      {
-        Sleep(100);
-      }
-      else
-      {
-        Update();
-      }
-    }
-  }
-
-  return (int)msg.wParam;
-}
-
-void Podo::Update()
-{
-  UpdateTimers();
-  UpdateCaption();
-  UpdateWorld();
-  UpdateRender();
-}
-
-bool  NeedReset() const           { return m_needResetScreenMode; }
-bool  m_needResetScreenMode       = false;
-bool  NeedResetInterfaces() const { return (m_dxgiFactory->IsCurrent() == FALSE) || m_needResetInterfaces; }
-bool  m_needResetInterfaces       = false;
-```
-<br>
-
-
-
-
-### 5.6. 조작 로직
-일반적인 윈도우 메시지 처리 방식을 사용하고 있습니다.
-
-이를 통해 마우스 좌클릭 월드 조작(미구현), 마우스 우클릭 시야 회전(미구현), 마우스 휠 시야 앞뒤 이동(미구현), WASD 시야 이동(미구현), ALT+ENTER 창 모드 전환 단축키, ALT+F4 종료 단축키, 창 크기 변화, 창 위치 변화를 처리합니다.
-
-메뉴 상태 전환 ESC 단축키는 윈도우 메시지를 직접 처리하지 않고 `ImGui::IsKeyPressed(...)`를 통해 처리하고 있습니다.
-
-```cpp
-LRESULT Podo::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
-  //...
-  switch (uMsg)
-  {
-    case WM_MOUSEMOVE:      //...
-    case WM_LBUTTONDOWN:    //...
-    case WM_LBUTTONUP:      //...
-    case WM_RBUTTONDOWN:    //...
-    case WM_RBUTTONUP:      //...
-    case WM_MOUSEWHEEL:     //...
-    case WM_KEYDOWN:        //...
-    case WM_SYSKEYDOWN:     //...
-    case WM_SYSCHAR:        //...
-    case WM_ENTERSIZEMOVE:  //...
-    case WM_EXITSIZEMOVE:   //...
-    case WM_SIZE:           //...
-    case WM_MOVE:           //...
-    case WM_DISPLAYCHANGE:  //...
-    case WM_ACTIVATE:       //...
-    case WM_CLOSE:          //...
-    case WM_DESTROY:        //...
-  }
-
-	return DefWindowProc(m_hWnd, uMsg, wParam, lParam);
-}
-```
-<br>
-
-
-
-
-### 5.7. 자원
-아직 구현하지 않았습니다.
-
-<br>
-
-
-
-
-### 5.8. 바인딩
-아직 구현하지 않았습니다.
-
-<br>
-
-
-
-
-### 5.9. 셰이더
-아직 구현하지 않았습니다.
-
-<br>
-
-
-
-
-### 5.10. 파이프라인 상태 객체
-아직 구현하지 않았습니다.
-
-<br>
-
-
-
-
-<!----------------------------------------------------------------------------------------------------------------------------------------------->
-## 6. 구현 예정
+<!---------------------------------------------------------------------------------------------------------------------------------------------->
+## 5. 구현 예정
 - **초기화 기능**
-  - 실행 중 초기화의 단계 분할
+  - 재초기화 단계 분할
 
 <br>
 
 - **단일 PSO 기능**
-  - 에셋 로드
-  - 정점 버퍼, 인덱스 버퍼, 텍스처
-  - 디폴트 힙 자원 업로드(`DirectX::ResourceUploadBatch`), CPU-GPU 동기화(`Fence`), 로딩 버튼 동기화
-  - VBV, IBV, SRV 서술자
-  - 오브젝트 테이블
-  - 상수 버퍼
-  - 업로드 힙 자원 관리(`DirectX::GraphicsMemory`), CPU-GPU 동기화(`Fence`)
-  - CBV 서술자
-  - 원근 투영, 조명, 텍스처 매핑, 노말 매핑, 거리별 안개 셰이더
-  - 입력 서명
-  - 루트 서명
-  - 파이프라인 상태 객체
-  - SDR 감마 인코딩-디코딩
+  - 에셋 로드, 텍스처 로드
+  - (!)정점 버퍼, (!)인덱스 버퍼, 텍스처 자원
+  - (!)디폴트 힙 자원 업로드(`DirectX::ResourceUploadBatch`)
+  - (!)VBV, (!)IBV, SRV 서술자
+  - (!)상수 버퍼
+  - (!)업로드 힙 자원 관리(`DirectX::GraphicsMemory`)
+  - (!)CBV 서술자
+  - (!)오브젝트 테이블
+  - 조명, 텍스처 매핑, 노말 매핑, 거리별 안개 셰이더
+  - (!)SDR 감마 인코딩-디코딩
   - 카메라 조작 기능
+  - 오브젝트 배치, 선택 기능
 
 <br>
 
 - **단일 PSO 최적화**
   - 대상 경량화             : 사전 생성 LOD
   - 로딩 대상 선별          : 로딩 정책
-  - 로딩 로직 최적화        : 로딩 전용 파일 포맷
+  - 로딩 로직 최적화        : 런타임 로딩 전용 파일 포맷
   - 로딩과 렌더 간 병렬화   : 파일 읽기용 CPU 스레드
   - 업로드 대상 선별        : 업로드 힙 자원 관리 정책, 디폴트 힙 자원 관리 정책
   - 업로드 로직 최적화      : `DirectX::ResourceUploadBatch`, `DirectX::GraphicsMemory` 비용 검증
@@ -591,11 +282,13 @@ LRESULT Podo::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
   - 루트 서명 직접화        : 루트 서술자, 루트 상수 
   - 루트 서명 간접화        : 서술자 테이블, 셰이더 자원 테이블 간접 인덱싱, 바인드리스 서술자 힙 접근
   - 루트 서명 정렬          : 변경 횟수가 많은 것부터 내림차순으로 정렬
-  - 대상 선별               : 오브젝트 절두체 선별, 광원 절두체 선별
+  - 그리기 대상 선별        : 오브젝트, 광원 절두체 선별
   - 그리기 명령 횟수 축소   : 인스턴싱
-  - 그리기 명령 병렬화      : 그리기 명령 분할 스레드
+  - 그리기 명령 정렬        : 캐싱 비용이 기준으로 그리기 명령을 정렬
+  - 그리기 명령 병렬화      : 스레드별 명령 리스트, 명령 할당자
   - 그리기 명령 재사용      : 번들
   - 셰이더 최적화           : 분기 수 조절, 로컬리티 개선 등
+  - CPU와 GPU 간 병렬화     : 명령 할당자 순환 배열
 
 <br>
 
@@ -627,8 +320,8 @@ LRESULT Podo::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 
 
-<!----------------------------------------------------------------------------------------------------------------------------------------------->
-## 7. 구현 제외
+<!---------------------------------------------------------------------------------------------------------------------------------------------->
+## 6. 구현 제외
 - **디바이스 소실 감지**  
   디바이스 소실을 감지하는 로직은 구현을 단순화하기 위해 작성하지 않았습니다.
 
@@ -644,11 +337,16 @@ LRESULT Podo::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 <br>
 
+- **오클루전 선별**  
+  프로젝트 규모를 제한하고자 제외하였습니다.
+
+<br>
 
 
 
-<!----------------------------------------------------------------------------------------------------------------------------------------------->
-## 8. 외부 항목
+
+<!---------------------------------------------------------------------------------------------------------------------------------------------->
+## 7. 외부 항목
 개발 및 빌드를 위해 다음 SDK, 툴킷, 라이브러리, 도구를 사용합니다.
 
 <br>
@@ -656,7 +354,7 @@ LRESULT Podo::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 
 
-### 8.1. DirectX 12 Agility SDK
+### 7.1. DirectX 12 Agility SDK
 - 목적
   - 윈도우 업데이트와 상관없이 최신 D3D12 헤더, 런타임 사용
 
@@ -679,7 +377,7 @@ LRESULT Podo::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 
 
-### 8.2. DirectX Tool Kit (DirectXTK12)
+### 7.2. DirectX Tool Kit (DirectXTK12)
 - 목적
   - Direct3D 12 유틸리티 라이브러리 사용
 
@@ -701,32 +399,7 @@ LRESULT Podo::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 
 
-### 8.3. DirectX Shader Compiler (DXC)
-- 목적
-  - HLSL 셰이더 컴파일
-
-- 사용 방식
-  - NuGet 패키지 관리 (Microsoft.Direct3D.DXC)
-  
-- 복원 위치
-  - `PodoNatureEngine\packages\Microsoft.Direct3D.DXC.<버전명>`
-
-- 라이선스 종류
-  - MIT License
-  - LLVM Release License
-  - MICROSOFT SOFTWARE LICENSE
-
-- 라이선스 위치
-  - `PodoNatureEngine\packages\Microsoft.Direct3D.DXC.<버전명>\LICENCE-MIT.txt`
-  - `PodoNatureEngine\packages\Microsoft.Direct3D.DXC.<버전명>\LICENSE-LLVM.txt`
-  - `PodoNatureEngine\packages\Microsoft.Direct3D.DXC.<버전명>\LICENSE-MS.txt`
-
-<br>
-
-
-
-
-### 8.4. PIX Event Runtime
+### 7.3. PIX Event Runtime
 - 목적
   - PIX 캡처
 
@@ -747,7 +420,7 @@ LRESULT Podo::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 
 
-### 8.5 Dear ImGui
+### 7.4 Dear ImGui
 - 목적
   - 옵션 GUI 제공
 
@@ -770,44 +443,34 @@ LRESULT Podo::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 
 
-<!----------------------------------------------------------------------------------------------------------------------------------------------->
-## 9. 참고 자료
-### 9.1. 인용 참고 자료
-[1] "Introduction To 3D Game Programming With DirectX 12 Second Edition" (Frank D. Luna 지음 / Mercury Learning And Information 출판 / 2025년 발행)  
+<!---------------------------------------------------------------------------------------------------------------------------------------------->
+## 8. 구현 참고
+"Introduction To 3D Game Programming With DirectX 12 Second Edition" (Frank D. Luna 지음 / Mercury Learning And Information 출판 / 2025년 발행) 
 
-[2] "Link an executable to a DLL" (Microsoft Learn / 2026년 7월 방문)  
-[https://learn.microsoft.com/en-us/cpp/build/linking-an-executable-to-a-dll?view=msvc-170](https://learn.microsoft.com/en-us/cpp/build/linking-an-executable-to-a-dll?view=msvc-170)
-
-[3] "Direct3D 12 programming environment setup" (Microsoft Learn / 2026년 7월 방문)  
-[https://learn.microsoft.com/en-us/windows/win32/direct3d12/directx-12-programming-environment-set-up](https://learn.microsoft.com/en-us/windows/win32/direct3d12/directx-12-programming-environment-set-up)
-
-[4] "Getting Started with the Agility SDK" (Microsoft Dev Blogs / 2026년 7월 방문)  
-[https://devblogs.microsoft.com/directx/gettingstarted-dx12agility](https://devblogs.microsoft.com/directx/gettingstarted-dx12agility)
-
-<br>
-
-
-
-
-### 9.2. 구현 참고 자료
-"Get Started with Win32 and C++" (Microsoft Learn / 2026년 6월 방문)  
+"Get Started with Win32 and C++" (Microsoft Learn / 2026년 6월 열람)  
 [https://learn.microsoft.com/en-us/windows/win32/learnwin32/learn-to-program-for-windows](https://learn.microsoft.com/en-us/windows/win32/learnwin32/learn-to-program-for-windows)
 
-"Setting the default DPI awareness for a process" (Microsoft Learn / 2026년 7월 방문)  
+"Link an executable to a DLL" (Microsoft Learn / 2026년 7월 열람)  
+[https://learn.microsoft.com/en-us/cpp/build/linking-an-executable-to-a-dll?view=msvc-170](https://learn.microsoft.com/en-us/cpp/build/linking-an-executable-to-a-dll?view=msvc-170)
+
+"Getting Started with the Agility SDK" (Microsoft Dev Blogs / 2026년 7월 열람)  
+[https://devblogs.microsoft.com/directx/gettingstarted-dx12agility](https://devblogs.microsoft.com/directx/gettingstarted-dx12agility)
+
+"Setting the default DPI awareness for a process" (Microsoft Learn / 2026년 7월 열람)  
 [https://learn.microsoft.com/en-us/windows/win32/hidpi/setting-the-default-dpi-awareness-for-a-process](https://learn.microsoft.com/en-us/windows/win32/hidpi/setting-the-default-dpi-awareness-for-a-process)
 
-"ComPtr" (Microsoft / 2026년 7월 방문)  
+"ComPtr" (Microsoft / 2026년 7월 열람)  
 [https://github.com/Microsoft/DirectXTK/wiki/ComPtr](https://github.com/Microsoft/DirectXTK/wiki/ComPtr)
 
-"The Care and Feeding of Modern Swap Chains" (Chuck Walbourn / 2026년 7월 방문)  
+"The Care and Feeding of Modern Swap Chains" (Chuck Walbourn / 2026년 7월 열람)  
 [https://walbourn.github.io/care-and-feeding-of-modern-swapchains](https://walbourn.github.io/care-and-feeding-of-modern-swapchains)  
 [https://walbourn.github.io/care-and-feeding-of-modern-swap-chains-2](https://walbourn.github.io/care-and-feeding-of-modern-swap-chains-2)  
 [https://walbourn.github.io/care-and-feeding-of-modern-swap-chains-3](https://walbourn.github.io/care-and-feeding-of-modern-swap-chains-3)
 
-"PresentMon" (GameTechDev / 2026년 7월 방문)  
+"PresentMon" (GameTechDev / 2026년 7월 열람)  
 [https://github.com/GameTechDev/PresentMon](https://github.com/GameTechDev/PresentMon)
 
-"WinPixEventRuntime" (Microsoft Dev Blogs / 2026년 7월 방문)  
+"WinPixEventRuntime" (Microsoft Dev Blogs / 2026년 7월 열람)  
 [https://devblogs.microsoft.com/pix/winpixeventruntime](https://devblogs.microsoft.com/pix/winpixeventruntime)
 
 <br>

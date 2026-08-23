@@ -61,7 +61,8 @@ void Podo::UpdateCaption()
 
 		int fps = (m_worldTimerFrame.GetTimeMilli() != 0) ? static_cast<int>(1000 / m_worldTimerFrame.GetTimeMilli()) : 0;
 
-		wstring caption = std::format(
+		wstring caption = std::format
+		(
 			L"{} (월드 경과 시간: {:06.1F} s / 월드 프레임 시간: {:0.4f} ms / FPS: {:3d} fps / 마우스 위치: {:04d} p, {:04d} p / 스크롤 각도: {:04d} unit)",
 			m_pAppName,
 			m_worldTimerTotal.GetTimeMilli() / 1000,
@@ -112,25 +113,27 @@ void Podo::UpdateRender()
 			ID3D12DescriptorHeap* descriptorHeaps[] = { m_descriptorHeapCBVSRVUAV.Get() };
 			m_commandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
 
-			CD3DX12_RESOURCE_BARRIER barrierPresentToRenderTarget = CD3DX12_RESOURCE_BARRIER::Transition(
+			CD3DX12_RESOURCE_BARRIER barrierPresentToRenderTarget = CD3DX12_RESOURCE_BARRIER::Transition
+			(
 				m_screenBackBuffers[m_screenBackBufferIndex].Get(),
 				D3D12_RESOURCE_STATE_PRESENT,
 				D3D12_RESOURCE_STATE_RENDER_TARGET
 			);
 			m_commandList->ResourceBarrier(1, &barrierPresentToRenderTarget);
 
-			CD3DX12_CPU_DESCRIPTOR_HANDLE cpuHandleRTV = m_descriptorHeapRTVCpuStartHandle;
+			CD3DX12_CPU_DESCRIPTOR_HANDLE cpuHandleRTV = m_descriptorHeapRTVStartHandleCPU;
 			cpuHandleRTV.Offset(m_screenBackBufferIndex, m_descriptorHeapRTVIncrementSize);
 
-			m_commandList->OMSetRenderTargets(1, &cpuHandleRTV, true, &m_descriptorHeapDSVCpuStartHandle);
+			m_commandList->OMSetRenderTargets(1, &cpuHandleRTV, true, &m_descriptorHeapDSVStartHandleCPU);
 			m_commandList->RSSetViewports(1, &m_screenViewPort);
 			m_commandList->RSSetScissorRects(1, &m_screenScissorRectangle);
 
 			FLOAT sinZeroToOne = (XMScalarSin(static_cast<float>(m_worldTimerTotal.GetTimeMilli()) / 1000) + 1) / 2;
 			FLOAT pTestColor[4] = { sinZeroToOne, sinZeroToOne, sinZeroToOne, 1.0f };
 			m_commandList->ClearRenderTargetView(cpuHandleRTV, pTestColor, 0, nullptr);
-			m_commandList->ClearDepthStencilView(
-				m_descriptorHeapDSVCpuStartHandle,
+			m_commandList->ClearDepthStencilView
+			(
+				m_descriptorHeapDSVStartHandleCPU,
 				D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL,
 				1.0f,
 				0,
@@ -155,7 +158,8 @@ void Podo::UpdateRender()
 			PIXScopedEvent(PIX_COLOR_INDEX(8), L"CPU: 8. Unbind Resources");
 			PIXScopedEvent(m_commandList.Get(), PIX_COLOR_INDEX(15), L"GPU: 5. Unbind Resources");
 
-			CD3DX12_RESOURCE_BARRIER barrierRenderTargetToPresent = CD3DX12_RESOURCE_BARRIER::Transition(
+			CD3DX12_RESOURCE_BARRIER barrierRenderTargetToPresent = CD3DX12_RESOURCE_BARRIER::Transition
+			(
 				m_screenBackBuffers[m_screenBackBufferIndex].Get(),
 				D3D12_RESOURCE_STATE_RENDER_TARGET,
 				D3D12_RESOURCE_STATE_PRESENT
@@ -315,7 +319,7 @@ void Podo::UpdateGUIMenu(ImGuiViewport* pImGuiViewPort, ImVec2 imGuiCenterPos)
 	ImGui::EndDisabled();
 	ImGui::SameLine();
 	ImGui::BeginDisabled(m_optionHDR.IsSupported() == false);
-	ImGui::Checkbox("HDR", &m_optionHDR.userEnabled);
+	ImGui::Checkbox("HDR(Partially Implemented)", &m_optionHDR.userEnabled);
 	ImGui::EndDisabled();
 
 	ImGui::Dummy(m_imGuiSpacingSize);
@@ -323,10 +327,10 @@ void Podo::UpdateGUIMenu(ImGuiViewport* pImGuiViewPort, ImVec2 imGuiCenterPos)
 
 	ImGui::Text("Graphics");
 	ImGui::BeginDisabled(m_optionRayTracing.IsSupported() == false);
-	ImGui::Checkbox("Ray Tracing", &m_optionRayTracing.userEnabled);
+	ImGui::Checkbox("Ray Tracing(Not Implemented)", &m_optionRayTracing.userEnabled);
 	ImGui::EndDisabled();
 	ImGui::BeginDisabled(m_optionMeshShader.IsSupported() == false);
-	ImGui::Checkbox("Mesh Shader", &m_optionMeshShader.userEnabled);
+	ImGui::Checkbox("Mesh Shader(Not Implemented)", &m_optionMeshShader.userEnabled);
 	ImGui::EndDisabled();
 
 	ImGui::Dummy(m_imGuiSpacingSize);

@@ -4,7 +4,7 @@
 #include <windows.h>
 
 //NOTE: WindowProc에서 생성할 pThis 객체의 클래스가 자식 클래스일 수 있도록 템플릿 타입 매개변수를 사용함
-template <class DerievedApp>
+template <class DerivedApp>
 class BaseApp
 {
 protected:
@@ -14,9 +14,22 @@ protected:
 		InitWindow(nCmdShow);
 	}
 
+	//NOTE:	예외에 의해 소멸된 후 소멸된 객체의 HandleMessage(..) 메서드가 창 프로시저에 의해 호출되지 않도록 창을 삭제함
+	//		DestoryWindow(..)가 WM_DESTROY를 거쳐 나온 WM_QUIT 메시지가 이후 예외 메시지 박스를 종료시키지 않도록 소진시킴
 	~BaseApp()
 	{
+		if (m_hWnd == nullptr)
+		{
+			return;
+		}
 
+		DestroyWindow(m_hWnd);
+
+		MSG msg = {};
+		while (PeekMessage(&msg, nullptr, WM_QUIT, WM_QUIT, PM_REMOVE))
+		{
+
+		}
 	}
 
 	//NOTE: 앱의 기본 생성자, 복사, 이동을 허용하지 않도록 함
@@ -39,18 +52,18 @@ private:
 	//			이를 해결하기 위해 CreatWindowEx의 마지막 매개변수, SetWindowLongPtr 함수, GetWindowLongPtr 함수를 이용함
 	static LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
-		DerievedApp* pThis = nullptr;
+		DerivedApp* pThis = nullptr;
 
 		if (uMsg == WM_CREATE)
 		{
 			CREATESTRUCT* pCreateStruct = reinterpret_cast<CREATESTRUCT*>(lParam);
-			pThis = reinterpret_cast<DerievedApp*>(pCreateStruct->lpCreateParams);
+			pThis = static_cast<DerivedApp*>(pCreateStruct->lpCreateParams);
 			SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG_PTR)pThis);
 		}
 		else
 		{
 			LONG_PTR pUserData = GetWindowLongPtr(hWnd, GWLP_USERDATA);
-			pThis = reinterpret_cast<DerievedApp*>(pUserData);
+			pThis = reinterpret_cast<DerivedApp*>(pUserData);
 		}
 
 		if (pThis != nullptr)
@@ -73,7 +86,7 @@ private:
 
 		const wchar_t* windowClassName = L"Window Class";
 
-		WNDCLASS wc = { };
+		WNDCLASS wc = {};
 		wc.style = CS_HREDRAW | CS_VREDRAW;
 		wc.lpfnWndProc = BaseApp::WindowProcedure;
 		wc.hInstance = m_hInstance;
@@ -82,7 +95,10 @@ private:
 
 		ThrowIfFalse(RegisterClass(&wc));
 
-		m_hWnd = CreateWindowEx(
+		DerivedApp* pThis = static_cast<DerivedApp*>(this);
+
+		m_hWnd = CreateWindowEx
+		(
 			0,
 			windowClassName,
 			m_pAppName,
@@ -94,7 +110,7 @@ private:
 			nullptr,
 			nullptr,
 			m_hInstance,
-			(LPVOID)this	//NOTE: WindowProcedure에서 이 객체에 접근할 수 있도록 하기 위한 단계 중 하나임
+			(LPVOID)pThis	//NOTE: WindowProcedure에서 이 객체에 접근할 수 있도록 하기 위한 단계 중 하나임
 		);
 
 		ThrowIfNull(m_hWnd);

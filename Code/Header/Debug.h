@@ -21,7 +21,8 @@ private:
 
 	static std::string ErrorString(const std::source_location& location, std::string statement, std::string result)
 	{
-		return std::format(
+		return std::format
+		(
 			"file: {}\n\n"
 			"function: {}\n\n"
 			"line: {}\n\n"

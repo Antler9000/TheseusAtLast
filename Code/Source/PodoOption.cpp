@@ -48,16 +48,16 @@ void Podo::OptionRestore()
 
 	bool result = true;
 
-	bool fullScreenEnabledTemp	= false;
-	int windowSavePosXTemp		= 0;
-	int windowSavePosYTemp		= 0;
-	int windowSaveWidthTemp		= 1600;
-	int windowSaveHeightTemp	= 900;
-	bool vSyncEnabledTemp		= false;
-	bool hdrEnabledTemp			= false;
-	bool rayTracingEnabledTemp	= false;
-	bool meshShaderEnabledTemp	= false;
-	int guiMasterSizeTemp		= 0;
+	bool	fullScreenEnabledTemp	= false;
+	int		windowSavePosXTemp		= 0;
+	int		windowSavePosYTemp		= 0;
+	int		windowSaveWidthTemp		= 1600;
+	int		windowSaveHeightTemp	= 900;
+	bool	vSyncEnabledTemp		= false;
+	bool	hdrEnabledTemp			= false;
+	bool	rayTracingEnabledTemp	= false;
+	bool	meshShaderEnabledTemp	= false;
+	int		guiMasterSizeTemp		= 0;
 
 	result &= OptionReadBool(fin, "FullScreen", fullScreenEnabledTemp);
 	result &= OptionReadInt(fin, "WindowSavePosX", windowSavePosXTemp);

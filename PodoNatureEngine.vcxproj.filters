@@ -13,9 +13,6 @@
     <Filter Include="External\imgui\backends">
       <UniqueIdentifier>{4aaacdae-9477-44f9-b051-38413a2a267f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Model">
-      <UniqueIdentifier>{70221f91-33cc-4f01-af92-a30636e2f082}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Shader">
       <UniqueIdentifier>{45413b6b-9fad-4568-af54-541dc492864a}</UniqueIdentifier>
     </Filter>
@@ -122,5 +119,13 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Shader\PixelShader.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\VertexShader.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

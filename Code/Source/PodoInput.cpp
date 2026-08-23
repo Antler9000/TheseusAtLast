@@ -83,14 +83,24 @@ LRESULT Podo::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 		case WM_MOUSEWHEEL:
 		{
-			InputMouseWheelScroll(wParam, lParam);
+			ImGuiIO& io = ImGui::GetIO();
+
+			if (io.WantCaptureMouse == false)
+			{
+				InputMouseWheelScroll(wParam, lParam);
+			}
 
 			return 0;
 		}
 
 		case WM_KEYDOWN:
 		{
-			InputKeyboardDown(wParam, lParam);
+			ImGuiIO& io = ImGui::GetIO();
+
+			if (!io.WantCaptureKeyboard)
+			{
+				InputKeyboardDown(wParam, lParam);
+			}
 
 			return 0;
 		}
@@ -237,7 +247,8 @@ void Podo::InputMouseLeftButtonDown(WPARAM wParam, LPARAM lParam)
 
 void Podo::InputMouseLeftButtonUp(WPARAM wParam, LPARAM lParam)
 {
-	std::wstring message = std::format(
+	std::wstring message = std::format
+	(
 		L"{}{} 시작 (x, y) = ({}, {}) \n 끝 (x, y) = ({}, {})",
 		wParam & MK_CONTROL ? L"[CTRL]" : L"",
 		wParam & MK_SHIFT ? L"[SHIFT]" : L"",
@@ -268,7 +279,8 @@ void Podo::InputMouseRightButtonDown(WPARAM wParam, LPARAM lParam)
 
 void Podo::InputMouseRightButtonUp(WPARAM wParam, LPARAM lParam)
 {
-	std::wstring message = std::format(
+	std::wstring message = std::format
+	(
 		L"{}{} 시작 (x, y) = ({}, {}) \n 끝 (x, y) = ({}, {})",
 		wParam & MK_CONTROL ? L"[CTRL]" : L"",
 		wParam & MK_SHIFT ? L"[SHIFT]" : L"",
