@@ -86,6 +86,32 @@ void Podo::UpdateWorld()
 	{
 		return;
 	}
+
+	XMVECTOR cameraPosition	= XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
+	XMVECTOR cameraTarget	= XMVectorSet(0.0f, 0.0f, 1.0f, 1.0f);
+	XMVECTOR cameraUp		= XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+
+	XMMATRIX viewMatrix = XMMatrixLookAtLH
+	(
+		cameraPosition,
+		cameraTarget,
+		cameraUp
+	);
+
+	XMMATRIX projectionMatrix = XMMatrixPerspectiveFovLH
+	(
+		XM_PIDIV4,
+		m_screenBackBufferAspectRatio,
+		0.1f,
+		1000.0f
+	);
+
+	XMMATRIX viewProjectionMatrix = viewMatrix * projectionMatrix;
+
+	for (auto& [name, object] : m_objects)
+	{
+		object.UpdateWorldViewProjection(viewProjectionMatrix);
+	}
 }
 
 void Podo::UpdateRender()

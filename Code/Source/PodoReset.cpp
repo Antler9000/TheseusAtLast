@@ -730,62 +730,54 @@ void Podo::ResetAssets()
 		4, 0, 3,  4, 3, 7
 	};
 
-	m_assets.emplace("Box", std::move(box));
-
 	DirectX::ResourceUploadBatch resourceUpload(m_device.Get());
 	resourceUpload.Begin();
 	{
-		ThrowIfFailed
-		(
-			DirectX::CreateStaticBuffer
-			(
-				m_device.Get(),
-				resourceUpload,
-				m_assets["Box"].vertices,
-				D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER,
-				m_assets["Box"].vertexBuffer.ReleaseAndGetAddressOf()
-			)
-		);
-
-		ThrowIfFailed
-		(
-			DirectX::CreateStaticBuffer
-			(
-				m_device.Get(),
-				resourceUpload,
-				m_assets["Box"].indices,
-				D3D12_RESOURCE_STATE_INDEX_BUFFER,
-				m_assets["Box"].indexBuffer.ReleaseAndGetAddressOf()
-			)
-		);
+		box.CreateBuffers(m_device.Get(), resourceUpload);
 	}
 	auto uploadFinished = resourceUpload.End(m_commandQueue.Get());
 
-	m_assets["Box"].vertexBufferView =
-	{
-		m_assets["Box"].vertexBuffer->GetGPUVirtualAddress(),
-		static_cast<UINT>(m_assets["Box"].vertices.size() * sizeof(Vertex)),
-		sizeof(Vertex)
-	};
-
-	m_assets["Box"].indexBufferView =
-	{
-		m_assets["Box"].indexBuffer->GetGPUVirtualAddress(),
-		static_cast<UINT>(m_assets["Box"].indices.size() * sizeof(uint32_t)),
-		DXGI_FORMAT_R32_UINT
-	};
+	box.UpdateBufferViews();
 
 	uploadFinished.wait();
+
+	m_assets["Box"] = std::move(box);
 }
 
 void Podo::ResetObjects()
 {
+	m_objects.clear();
 
+	Object boxObject;
+	boxObject.asset = &m_assets.at("Box");
+
+	DirectX::XMVECTOR position	= DirectX::XMVectorSet(0.0f, 0.0f, 3.0f, 1.0f);
+	DirectX::XMVECTOR direction	= DirectX::XMVectorSet(1.0f, 0.0f, 1.0f, 0.0f);
+	DirectX::XMVECTOR up		= DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+	boxObject.SetWorldSpace(position, direction, up);
+	boxObject.CreateConstantBuffer(m_device.Get());
+
+	m_objects["BoxObject"] = std::move(boxObject);
 }
 
 void Podo::ResetCBVSRVUAV()
 {
-	
+	CD3DX12_CPU_DESCRIPTOR_HANDLE cpuHandle = m_descriptorHeapCBVSRVUAVStartHandleCPUForRender;
+	CD3DX12_GPU_DESCRIPTOR_HANDLE gpuHandle = m_descriptorHeapCBVSRVUAVStartHandleGPUForRender;
+
+	for (auto& [name, object] : m_objects)
+	{
+		D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
+		cbvDesc.BufferLocation = object.constantBuffer->GetGPUVirtualAddress();
+		cbvDesc.SizeInBytes = static_cast<UINT>(object.constantBuffer->GetDesc().Width);
+
+		m_device->CreateConstantBufferView(&cbvDesc, cpuHandle);
+
+		object.constantBufferViewGPUHandle = gpuHandle;
+
+		cpuHandle.Offset(1, m_descriptorHeapCBVSRVUAVIncrementSize);
+		gpuHandle.Offset(1, m_descriptorHeapCBVSRVUAVIncrementSize);
+	}
 }
 
 void Podo::ResetRootSignature()

@@ -4,6 +4,7 @@
 #include "State.h"
 #include "Option.h"
 #include "Timer.h"
+#include "Object.h"
 #include "Asset.h"
 #include "Alloc.h"
 #include "imgui.h"
@@ -207,6 +208,7 @@ private:
 	CD3DX12_CPU_DESCRIPTOR_HANDLE			m_descriptorHeapRTVStartHandleCPU;
 	CD3DX12_CPU_DESCRIPTOR_HANDLE			m_descriptorHeapDSVStartHandleCPU;
 
+	std::unordered_map<std::string, Object>	m_objects;
 	std::unordered_map<std::string, Asset>	m_assets;
 
 	UINT									m_descriptorHeapCBVSRVUAVIncrementSize				= 0;
