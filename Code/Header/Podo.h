@@ -233,7 +233,7 @@ private:
 	bool									m_needResetInterfaces								= false;
 
 	bool									IsUpdateStopped() const								{ return (IsWorldStopped() && IsRenderStopped()); }
-	bool									IsWorldStopped() const								{ return (m_engineStatePresent != ENGINE_STATE_RUNTIME); }
+	bool									IsWorldStopped() const								{ return (m_engineStatePresent == ENGINE_STATE_LOADING); }
 	bool									IsRenderStopped() const								{ return m_isWindowResizing || m_isWindowMoving || m_isWindowMinimized; }
 	bool									m_isWindowResizing									= false;
 	bool									m_isWindowMoving									= false;

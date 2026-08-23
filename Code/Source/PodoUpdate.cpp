@@ -350,7 +350,6 @@ void Podo::UpdateGUIRuntime(ImGuiViewport* pImGuiViewPort, ImVec2 imGuiCenterPos
 	if (menuButtonClicked == true || escKeyPressed == true)
 	{
 		m_engineStatePresent = ENGINE_STATE_MENU;
-		WorldTimersStop();
 	}
 
 	ImGui::End();
@@ -368,7 +367,6 @@ void Podo::UpdateGUIMenu(ImGuiViewport* pImGuiViewPort, ImVec2 imGuiCenterPos)
 	if (backButtonClicked == true || escKeyPressed == true)
 	{
 		m_engineStatePresent = ENGINE_STATE_RUNTIME;
-		WorldTimersStart();
 	}
 
 	ImGui::SameLine();
